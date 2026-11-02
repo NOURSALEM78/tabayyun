@@ -22,9 +22,10 @@ pytest
 ## Knowledge-base ingestion
 
 ```
-rm -rf data/processed/civil_status_law data/processed/civil_status_regulation data/processed/nationality_law_and_regulation   # only when the PDFs or OCR settings change
 python -m backend.ingestion.run_all
 ```
+
+The page text of every PDF is cached in `data/ocr/` and committed, so everyone works on the same OCR text and no OCR runs on a normal checkout. Delete a folder there only when that PDF or the OCR settings change (the text corrections then need re-checking).
 
 Output: `data/processed/Tabayyun_KB.xlsx` (one sheet per table, plus `validation`).
 
@@ -34,4 +35,5 @@ Output: `data/processed/Tabayyun_KB.xlsx` (one sheet per table, plus `validation
   - `documents.json`: decision numbers, dates and status of every document (source and referenced).
   - `relations.json`: which document repeals, replaces or amends which, with evidence.
   - `procedures.json`: procedures and their requirements with source articles (`review_status: draft` until approved).
+  - `text_corrections.json`: reviewed OCR fixes, one exact replacement inside one article. A correction whose text is not found is logged as skipped.
 - Do not open the PDFs in the VS Code text editor: saving them there corrupts the file.

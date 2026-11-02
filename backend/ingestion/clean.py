@@ -14,7 +14,11 @@ from backend.ingestion.constants import (
     FORMATTING_CHARACTERS,
     HEADER_LINE,
     MAX_HEADER_LINES,
+    PAGE_COUNTER_MAX_LENGTH,
+    PAGE_COUNTER_MAX_OTHER_LETTERS,
+    PAGE_COUNTER_NOISE_LETTERS,
     PAGE_COUNTER_PATTERN,
+    PAGE_COUNTER_WORD,
     PAGE_SEPARATOR,
     REGULATION_BOUNDARY,
     STRAY_LINE_END_MARKER_PATTERN,
@@ -44,6 +48,26 @@ def _is_article_heading(line: str) -> bool:
     return re.match(ARTICLE_LINE_PATTERN, line) is not None or is_article_heading_line(line)
 
 
+def is_garbled_page_counter(line: str) -> bool:
+    """Return whether a short line looks like an OCR-garbled "n من m" page counter."""
+    words = line.split()
+    if PAGE_COUNTER_WORD not in words or len(line) > PAGE_COUNTER_MAX_LENGTH:
+        return False
+    other = "".join(word for word in words if word != PAGE_COUNTER_WORD)
+    letters = [character for character in other if "\u0621" <= character <= "\u064a"]
+    if len(letters) > PAGE_COUNTER_MAX_OTHER_LETTERS:
+        return False
+    has_digit = any(character.isdigit() for character in other)
+    return has_digit or all(letter in PAGE_COUNTER_NOISE_LETTERS for letter in letters)
+
+
+def _drop_trailing_page_counter(lines: list[str]) -> list[str]:
+    """Remove a garbled page counter from the last line of a page."""
+    if lines and is_garbled_page_counter(lines[-1]):
+        return lines[:-1]
+    return lines
+
+
 def _clean_page_lines(
     page_text: str,
     header_markers: tuple[str, ...],
@@ -67,7 +91,7 @@ def _clean_page_lines(
         if line_number < MAX_HEADER_LINES and is_title and not is_preserved:
             continue
         cleaned_lines.append(line)
-    return cleaned_lines
+    return _drop_trailing_page_counter(cleaned_lines)
 
 
 def _join_wrapped_lines(lines: list[str]) -> str:
@@ -110,7 +134,10 @@ def remove_amendment_markers(text: str, article_no: int) -> tuple[str, list[Amen
     """Remove amendment annotations and return their article-numbered records."""
     pattern = re.compile(AMENDMENT_MARKER_PATTERN)
     markers = [
-        AmendmentMarker(article_no=article_no, marker_text=match.group("marker").strip())
+        AmendmentMarker(
+            article_no=article_no,
+            marker_text=(match.group("marker") or match.group("number_marker")).strip(),
+        )
         for match in pattern.finditer(text)
     ]
     cleaned_text = pattern.sub(" ", text)

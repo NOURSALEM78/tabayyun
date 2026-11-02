@@ -12,11 +12,12 @@ from backend.ingestion.clean import AmendmentMarker, clean_document_pages
 from backend.ingestion.constants import (
     DOCUMENT_SPECS,
     EXPORT_PATH,
-    PROCESSED_DATA_DIR,
+    PAGE_TEXT_CACHE_DIR,
     RAW_DATA_DIR,
     SOURCE_FILENAMES,
     TEXT_LAYER_SOURCE_FILENAMES,
 )
+from backend.ingestion.corrections import apply_text_corrections
 from backend.ingestion.export import write_workbook
 from backend.ingestion.extract import ExtractionResult, extract_knowledge
 from backend.ingestion.ocr import read_pdf_pages
@@ -50,7 +51,7 @@ def _read_sources() -> tuple[dict[str, list[str]], dict[str, str]]:
         pdf_path = RAW_DATA_DIR / filename
         if not pdf_path.is_file():
             raise FileNotFoundError(f"Required source PDF is missing: {pdf_path}")
-        cache_dir = PROCESSED_DATA_DIR / pdf_path.stem
+        cache_dir = PAGE_TEXT_CACHE_DIR / pdf_path.stem
         source_pages[filename] = read_pdf_pages(
             pdf_path,
             cache_dir,
@@ -146,6 +147,7 @@ def run_pipeline() -> PipelineSummary:
     source_pages, source_hashes = _read_sources()
     cleaned_sources = _clean_sources(source_pages)
     articles, amendment_markers, article_counts = _split_documents(cleaned_sources)
+    articles = apply_text_corrections(articles)
     validation_rows = tuple(
         validate_articles(
             spec,

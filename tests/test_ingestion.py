@@ -520,3 +520,69 @@ def test_project_seed_files_load_against_all_article_numbers() -> None:
     assert all(issuer["referral_text"] for issuer in rows.issuers)
     assert {row["relation_type"] for row in rows.relations} <= {"repeals", "amends", "replaces"}
     assert rows.procedures and rows.requirements
+
+
+def test_text_corrections_apply_once_and_skip_missing_or_ambiguous(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Apply a correction only when its text occurs exactly once in the target article."""
+    from backend.ingestion.corrections import TextCorrection, apply_text_corrections
+
+    articles = (
+        ArticleRecord(1, "CSL", 13, "المادة 13", "لكل أصرة سعودية"),
+        ArticleRecord(1, "CSL", 14, "المادة 14", "نص نص"),
+    )
+    corrections = [
+        TextCorrection("CSL", 13, "أصرة", "أسرة"),
+        TextCorrection("CSL", 14, "نص", "متن"),  # ambiguous: two occurrences
+        TextCorrection("CSL", 13, "غير موجود", "x"),  # missing
+        TextCorrection("CSL", 99, "أي", "x"),  # missing article
+    ]
+
+    with caplog.at_level(logging.WARNING):
+        result = apply_text_corrections(articles, corrections)
+
+    assert result[0].text == "لكل أسرة سعودية"
+    assert result[1].text == "نص نص"
+    assert caplog.text.count("Correction skipped") == 2
+    assert "missing article" in caplog.text
+
+
+def test_project_text_corrections_file_is_valid() -> None:
+    """The committed corrections file loads and every entry has non-empty text."""
+    from backend.ingestion.corrections import load_text_corrections
+
+    corrections = load_text_corrections()
+
+    assert corrections
+    assert all(c.find and c.doc in {"CSL", "CSR", "NAT", "NATR"} for c in corrections)
+
+
+@pytest.mark.parametrize(
+    ("line", "expected"),
+    [
+        ("7 من 77", True),
+        ("؛؟! من 77", True),
+        ("من لال", True),
+        ("من ذلك.", False),
+        ("بحكم من", False),
+        ("أشير إليه سابقاً.", False),
+    ],
+)
+def test_garbled_page_counter_detection(line: str, expected: bool) -> None:
+    """Recognise OCR-garbled page counters without removing short text lines."""
+    from backend.ingestion.clean import is_garbled_page_counter
+
+    assert is_garbled_page_counter(line) is expected
+
+
+def test_amendment_markers_accept_ocr_star_variants() -> None:
+    """Remove amendment markers whose star was read as # or « by OCR."""
+    for marker in (
+        "*#تعديلات المادة الثانية",
+        "#تعديلات المادة الخامسة عشر",
+        "«تعديلات المادة الخامسة والعشرون",
+    ):
+        text, found = remove_amendment_markers(f"نص المادة. {marker}", 2)
+        assert text == "نص المادة."
+        assert found[0]["marker_text"].startswith("تعديلات المادة")

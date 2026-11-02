@@ -9,6 +9,10 @@ RAW_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "raw"
 PROCESSED_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "processed"
 EXPORT_PATH: Final[Path] = PROCESSED_DATA_DIR / "Tabayyun_KB.xlsx"
 SEED_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "seed"
+# Page text cache. It is committed to git so every team member works on exactly the
+# same OCR text, which the reviewed text corrections are written against.
+PAGE_TEXT_CACHE_DIR: Final[Path] = PROJECT_ROOT / "data" / "ocr"
+SEED_CORRECTIONS_FILE: Final[str] = "text_corrections.json"
 SEED_ISSUERS_FILE: Final[str] = "issuers.json"
 SEED_DOCUMENTS_FILE: Final[str] = "documents.json"
 SEED_RELATIONS_FILE: Final[str] = "relations.json"
@@ -16,7 +20,9 @@ SEED_PROCEDURES_FILE: Final[str] = "procedures.json"
 
 OCR_DPI: Final[int] = 300
 OCR_LANGUAGE: Final[str] = "ara"
-OCR_CONFIG: Final[str] = "--psm 6"
+# psm 4 (single column of variable-size text) keeps short last lines of paragraphs
+# that psm 6 silently dropped.
+OCR_CONFIG: Final[str] = "--psm 4"
 # A page is treated as blank only when almost no pixels are dark ("ink").
 # Normal text pages are mostly white, so a white-fraction test wrongly rejects them.
 OCR_INK_THRESHOLD: Final[int] = 128
@@ -116,6 +122,13 @@ SOURCE_FILENAMES: Final[tuple[str, ...]] = tuple(
 HEADER_LINE: Final[str] = "الإدارة القانونية"
 ARTICLE_PREFIX: Final[str] = "المادة"
 PAGE_COUNTER_PATTERN: Final[str] = r"^\s*\d+\s+من\s+\d+\s*$"
+# OCR often garbles the page counter at the bottom of a page ("٣ من ٢٧" read as
+# "؛؟ من 77" or "من لاا"): a short last line with "من" and almost no letters.
+PAGE_COUNTER_WORD: Final[str] = "من"
+PAGE_COUNTER_MAX_LENGTH: Final[int] = 16
+PAGE_COUNTER_MAX_OTHER_LETTERS: Final[int] = 3
+# Letters OCR produces from the counter digits; a counter without digits may only use these.
+PAGE_COUNTER_NOISE_LETTERS: Final[str] = "لايد"
 # Lines starting with "المادة" always start a new paragraph when wrapped lines are joined
 # (this covers text-layer headings such as "المادةالأولى" with no space).
 ARTICLE_LINE_PATTERN: Final[str] = r"^\s*المادة"
@@ -144,7 +157,12 @@ ORDINAL_HEADING_PATTERN: Final[str] = (
 # Nationality law (pdftotext): each article number is printed on its own line
 # ("-12") right after the FIRST line of that article.
 NUMBER_MARKER_LINE_PATTERN: Final[str] = r"^\s*[-–—]\s*(?P<number>\d{1,3})\s*[-–—]?\s*$"
-AMENDMENT_MARKER_PATTERN: Final[str] = r"\*+\s*(?P<marker>تعديلات\s+المادة\s+[^\n*]+|\(\s*\d+\s*\))"
+# "*تعديلات المادة الثانية" (OCR may read the star as # or «) or "* (1)". The ordinal
+# after "المادة" is limited to three words so following text is never removed.
+AMENDMENT_MARKER_PATTERN: Final[str] = (
+    r"[*#«»]*\s*(?P<marker>تعديلات\s+المادة(?:\s+[\u0621-\u064A]+){1,3})"
+    r"|[*#]+\s*(?P<number_marker>\(\s*\d+\s*\))"
+)
 PUNCTUATION_PATTERN: Final[str] = r"[!\"#$%&'()*+,-./:;<=>?@\[\]\\^_`{|}~،؛؟«»ـ]"
 FORMATTING_CHARACTERS: Final[str] = "\u200e\u200f\u202a\u202b\u202c\u202d\u202e\ufeff"
 COMMON_OCR_REPLACEMENTS: Final[tuple[tuple[str, str], ...]] = (("»", "،"),)
