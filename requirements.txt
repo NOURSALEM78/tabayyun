@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy>=2
+psycopg[binary]
+pgvector
+python-dotenv
+pandas
+openpyxl
+pymupdf
+pytesseract
+pdf2image
+rank_bm25
+pytest
