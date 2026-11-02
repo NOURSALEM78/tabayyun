@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import logging
 from collections.abc import Iterator
 from datetime import UTC, datetime
@@ -18,7 +19,7 @@ from backend.ingestion.clean import (
     convert_arabic_digits,
     remove_amendment_markers,
 )
-from backend.ingestion.constants import DOCUMENT_SPECS, PAGE_SEPARATOR
+from backend.ingestion.constants import DOCUMENT_SPECS, PAGE_SEPARATOR, DocumentSpec
 from backend.ingestion.export import write_workbook
 from backend.ingestion.extract import (
     DECISION_NUMBER_RE,
@@ -26,6 +27,7 @@ from backend.ingestion.extract import (
     approval_details,
     classify_rule_type,
 )
+from backend.ingestion.headings import is_article_heading_line
 from backend.ingestion.normalize import normalize_arabic
 from backend.ingestion.ocr import read_pdf_pages
 from backend.ingestion.split import (
@@ -105,7 +107,7 @@ def test_split_ordinal_articles_and_markers() -> None:
     """Split ordinal article headings and retain markers outside article text."""
     source = "المادة الأولى\nنص أول\nالمادة الحادية والعشرون\n* (1) نص حادي وعشرون"
 
-    result = split_articles(source, DOCUMENT_SPECS[0])
+    result = split_articles(source, _with_expected(DOCUMENT_SPECS[0], 2))
 
     assert result.articles[1].text == "نص حادي وعشرون"
     assert [article.article_no for article in result.articles] == [1, 2]
@@ -115,7 +117,9 @@ def test_split_ordinal_articles_and_markers() -> None:
 
 def test_split_numeric_articles() -> None:
     """Split numeric article headings used by the civil-status regulation."""
-    result = split_articles("المادة (1)\nالأولى\nالمادة (2)\nالثانية", DOCUMENT_SPECS[1])
+    result = split_articles(
+        "المادة (1)\nالأولى\nالمادة (2)\nالثانية", _with_expected(DOCUMENT_SPECS[1], 2)
+    )
 
     assert [(article.article_no, article.text) for article in result.articles] == [
         (1, "الأولى"),
@@ -127,17 +131,16 @@ def test_sequential_heading_numbers_ignore_ocr_digits_and_keep_pages() -> None:
     """Assign sequential IDs despite wrong OCR digits and retain page locations."""
     source = f"المادة (٦)\nنص أول{PAGE_SEPARATOR}المادة (/1)\nنص ثان"
 
-    result = split_articles(source, DOCUMENT_SPECS[1])
+    result = split_articles(source, _with_expected(DOCUMENT_SPECS[1], 2))
 
     assert [article.article_no for article in result.articles] == [1, 2]
-    assert [article.ocr_article_no for article in result.articles] == ["٦", "1"]
+    assert [article.ocr_article_no for article in result.articles] == ["(٦)", "(/1)"]
     assert [article.page_no for article in result.articles] == [1, 2]
     report = validate_articles(DOCUMENT_SPECS[1], result.articles, page_count=2)
     assert report["heading_disagreements"] == [
-        {"article_no": 1, "ocr_heading_number": "٦", "page_no": 1},
-        {"article_no": 2, "ocr_heading_number": "1", "page_no": 2},
+        {"article_no": 1, "ocr_heading_number": "(٦)", "page_no": 1},
+        {"article_no": 2, "ocr_heading_number": "(/1)", "page_no": 2},
     ]
-    assert report["missing_heading_near_page"] == 2
 
 
 def test_split_nationality_law_trailing_numbers() -> None:
@@ -308,6 +311,67 @@ def test_scanned_pages_use_poppler_and_report_white_or_short_ocr(
     assert pages == ["نص"]
     assert render_calls[0]["dpi"] == 300
     assert render_calls[0]["grayscale"] is True
-    assert "almost all white" in caplog.text
+    assert "no visible ink" in caplog.text
     assert "fewer than 50 characters" in caplog.text
     assert "page 1" in caplog.text
+
+
+def _with_expected(spec: DocumentSpec, expected: int) -> DocumentSpec:
+    """Return a copy of a document spec with a small expected article count for tests."""
+    return dataclasses.replace(spec, expected_articles=expected)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "المادة (٤٠)",
+        "المادة )١77/(\u200f",  # OCR digits garbled, bidi mark kept
+        ")١5( المادة\u200e",  # line reversed by OCR
+        "المادة ١ )١4(",
+        "المادة",  # number not read at all
+        "المادة/ الأولى",
+        "المادة/ الثامنة والثمانون",  # contains the letters of "من" inside a word
+    ],
+)
+def test_heading_lines_are_recognised(line: str) -> None:
+    """Recognise article headings even when OCR garbles or reverses them."""
+    assert is_article_heading_line(line)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "المادة (15) من النظام.",  # in-text reference
+        "المادة )١١( من هذه اللائحة.",
+        "الخاصة والحالات الأخرى غير الواردة في هذه المادة.",
+        "*تعديلات المادة الثانية",  # amendment marker
+        "المادة. ا",  # sentence ending with the word
+        "يتم تسجيل الواقعة وفق ما ورد في المادة (25) من هذه اللائحة",
+    ],
+)
+def test_non_heading_lines_are_rejected(line: str) -> None:
+    """Reject in-text references, amendment markers, and sentence endings."""
+    assert not is_article_heading_line(line)
+
+
+def test_sequential_split_refuses_wrong_heading_count(caplog: pytest.LogCaptureFixture) -> None:
+    """Return no articles when the heading count differs, so numbers are never shifted."""
+    source = "المادة (١)\nنص أول\nالمادة (٢)\nنص ثان"
+
+    with caplog.at_level(logging.ERROR):
+        result = split_articles(source, _with_expected(DOCUMENT_SPECS[1], 3))
+
+    assert result.articles == ()
+    assert "found 2 article headings, expected 3" in caplog.text
+
+
+def test_blank_page_check_accepts_normal_text_pages(tmp_path: Path) -> None:
+    """A mostly white page with some ink is not blank; an all-white page is."""
+    from backend.ingestion.ocr import _is_blank
+
+    page = Image.new("L", (100, 100), color=255)
+    assert _is_blank(page)
+    for x in range(100):
+        for y in range(0, 100, 10):
+            page.putpixel((x, y), 0)
+    assert not _is_blank(page)

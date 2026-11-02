@@ -17,9 +17,9 @@ from PIL import Image
 from backend.ingestion.constants import (
     OCR_CONFIG,
     OCR_DPI,
-    OCR_IMAGE_WHITE_FRACTION,
-    OCR_IMAGE_WHITE_THRESHOLD,
+    OCR_INK_THRESHOLD,
     OCR_LANGUAGE,
+    OCR_MIN_INK_FRACTION,
     OCR_MIN_TEXT_CHARACTERS,
     TESSDATA_BEST_DIR,
     TESSDATA_BEST_MODEL,
@@ -107,10 +107,8 @@ def _render_and_ocr_page(pdf_path: Path, page_number: int) -> str:
 
     image = images[0]
     try:
-        if _is_almost_all_white(image):
-            logger.error(
-                "Rendered page is almost all white: %s page %d", pdf_path.name, page_number
-            )
+        if _is_blank(image):
+            logger.error("Rendered page has no visible ink: %s page %d", pdf_path.name, page_number)
         text = pytesseract.image_to_string(
             image,
             lang=OCR_LANGUAGE,
@@ -130,13 +128,17 @@ def _render_and_ocr_page(pdf_path: Path, page_number: int) -> str:
     return text
 
 
-def _is_almost_all_white(image: Image.Image) -> bool:
-    """Return whether the grayscale page is above the configured white-pixel ratio."""
+def _is_blank(image: Image.Image) -> bool:
+    """Return whether the page has almost no dark (ink) pixels.
+
+    Text pages are mostly white paper, so blankness is measured by the share of
+    dark pixels rather than the share of white ones.
+    """
     grayscale = image.convert("L")
-    white_pixels = sum(grayscale.histogram()[OCR_IMAGE_WHITE_THRESHOLD:])
+    dark_pixels = sum(grayscale.histogram()[:OCR_INK_THRESHOLD])
     pixel_count = grayscale.width * grayscale.height
     grayscale.close()
-    return pixel_count > 0 and white_pixels / pixel_count >= OCR_IMAGE_WHITE_FRACTION
+    return pixel_count == 0 or dark_pixels / pixel_count < OCR_MIN_INK_FRACTION
 
 
 def _tesseract_config() -> str:

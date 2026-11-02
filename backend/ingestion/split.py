@@ -31,6 +31,7 @@ from backend.ingestion.constants import (
     PUBLIC_CLASSIFICATION_LEVEL,
     DocumentSpec,
 )
+from backend.ingestion.headings import heading_number_token, is_article_heading_line
 
 logger = logging.getLogger(__name__)
 
@@ -125,8 +126,60 @@ def _find_compact_text(text: str, target: str) -> int:
     return source_positions[match_index] if match_index >= 0 else -1
 
 
+def _heading_line_spans(text: str) -> list[tuple[int, int, str]]:
+    """Return (start, end, line) offsets of every article-heading line in the text."""
+    spans: list[tuple[int, int, str]] = []
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        stripped = line.strip()
+        if stripped and is_article_heading_line(stripped):
+            spans.append((offset, offset + len(line), stripped))
+        offset += len(line)
+    return spans
+
+
+def _sequential_articles(text: str, spec: DocumentSpec) -> list[ArticleRecord]:
+    """Split an OCR document at heading lines and number articles by their order.
+
+    OCR digits inside headings are unreliable, so numbers come from the order of
+    the headings. This is only safe when every heading was found: if the count
+    differs from the expected count, no articles are returned and an error is
+    logged, so wrongly numbered articles never reach the knowledge base.
+    """
+    spans = _heading_line_spans(text)
+    if len(spans) != spec.expected_articles:
+        logger.error(
+            "%s: found %d article headings, expected %d. Numbering was not assigned; "
+            "review the OCR text and the heading rules in headings.py.",
+            spec.code,
+            len(spans),
+            spec.expected_articles,
+        )
+        return []
+
+    records: list[ArticleRecord] = []
+    for index, (start, end, line) in enumerate(spans):
+        next_start = spans[index + 1][0] if index + 1 < len(spans) else len(text)
+        number = index + 1
+        records.append(
+            ArticleRecord(
+                doc_id=spec.doc_id,
+                document_code=spec.code,
+                article_no=number,
+                article_label=f"{ARTICLE_PREFIX} {number}",
+                text=collapse_whitespace(text[end:next_start].replace(PAGE_SEPARATOR, " ")),
+                ocr_article_no=heading_number_token(line),
+                page_no=text.count(PAGE_BREAK_CHARACTER, 0, start) + 1,
+            )
+        )
+    return records
+
+
 def _article_texts_by_heading(text: str, spec: DocumentSpec) -> list[ArticleRecord]:
     """Split a document whose article heading precedes each article body."""
+    if spec.sequential_headings:
+        return _sequential_articles(text, spec)
+
     heading_re = NUMERIC_HEADING_RE if spec.article_style == "numeric" else ORDINAL_HEADING_RE
     matches = list(heading_re.finditer(text))
     records: list[ArticleRecord] = []
@@ -134,14 +187,13 @@ def _article_texts_by_heading(text: str, spec: DocumentSpec) -> list[ArticleReco
     for index, match in enumerate(matches):
         next_start = matches[index + 1].start() if index + 1 < len(matches) else len(text)
         raw_heading_number = match.groupdict().get("number") or match.groupdict().get("ordinal")
-        number_from_heading = (
+        number = (
             int(convert_arabic_digits(raw_heading_number))
             if spec.article_style == "numeric"
             and raw_heading_number
             and convert_arabic_digits(raw_heading_number).isdigit()
             else ordinal_to_number(raw_heading_number or "")
         )
-        number = index + 1 if spec.sequential_headings else number_from_heading
         if number is None:
             logger.warning("Could not convert article heading %r in %s", match.group(), spec.code)
             continue

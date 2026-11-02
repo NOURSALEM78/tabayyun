@@ -12,8 +12,10 @@ EXPORT_PATH: Final[Path] = PROCESSED_DATA_DIR / "Tabayyun_KB.xlsx"
 OCR_DPI: Final[int] = 300
 OCR_LANGUAGE: Final[str] = "ara"
 OCR_CONFIG: Final[str] = "--psm 6"
-OCR_IMAGE_WHITE_THRESHOLD: Final[int] = 250
-OCR_IMAGE_WHITE_FRACTION: Final[float] = 0.995
+# A page is treated as blank only when almost no pixels are dark ("ink").
+# Normal text pages are mostly white, so a white-fraction test wrongly rejects them.
+OCR_INK_THRESHOLD: Final[int] = 128
+OCR_MIN_INK_FRACTION: Final[float] = 0.002
 OCR_MIN_TEXT_CHARACTERS: Final[int] = 50
 OCR_TEXT_SUFFIX: Final[str] = ".txt"
 TESSDATA_BEST_DIR: Final[Path] = PROJECT_ROOT / ".tessdata_best"
@@ -123,7 +125,22 @@ SOURCE_FILENAMES: Final[tuple[str, ...]] = tuple(
 HEADER_LINE: Final[str] = "الإدارة القانونية"
 ARTICLE_PREFIX: Final[str] = "المادة"
 PAGE_COUNTER_PATTERN: Final[str] = r"^\s*\d+\s+من\s+\d+\s*$"
+# Lines starting with "المادة" always start a new paragraph when wrapped lines are joined
+# (this covers text-layer headings such as "المادةالأولى" with no space).
 ARTICLE_LINE_PATTERN: Final[str] = r"^\s*المادة"
+# Article-heading detection for OCR'd documents (see headings.py).
+# OCR misreads the digits inside headings and sometimes reverses the line direction,
+# so a heading is recognised by the word "المادة" at either end of a short line.
+HEADING_WORD_PATTERN: Final[str] = r"^[^\u0621-\u064A]*(?:ال)?ماد[ةه](?P<tail>[^\u0621-\u064A]*)$"
+HEADING_MAX_WORDS: Final[int] = 4
+HEADING_TAIL_SENTENCE_END: Final[str] = r"[.،:؛]"
+HEADING_STRIP_CHARACTERS: Final[str] = ".,،:؛()*+/\\"
+# Words that show the line is an in-text reference ("المادة (15) من النظام") or an
+# amendment marker ("تعديلات المادة الثانية"), not a heading.
+HEADING_EXCLUDED_WORDS: Final[frozenset[str]] = frozenset(
+    {"من", "في", "فى", "النظام", "اللائحة", "هذه", "هذا"}
+)
+HEADING_EXCLUDED_SUBSTRINGS: Final[tuple[str, ...]] = ("تعديل",)
 NUMERIC_HEADING_PATTERN: Final[str] = (
     r"(?m)^[ \t]*المادة[ \t]*[()\[\]{}]?[ \t]*/?[ \t]*[()\[\]{}]?"
     r"[ \t]*(?P<number>[^()\s/]{1,3})[ \t]*[()\[\]{}]?[ \t]*"

@@ -20,6 +20,7 @@ from backend.ingestion.constants import (
     STRAY_LINE_END_MARKER_PATTERN,
     WESTERN_DIGITS,
 )
+from backend.ingestion.headings import is_article_heading_line
 
 
 class AmendmentMarker(TypedDict):
@@ -35,8 +36,12 @@ def convert_arabic_digits(text: str) -> str:
 
 
 def _is_article_heading(line: str) -> bool:
-    """Return whether a line begins an article heading."""
-    return re.match(ARTICLE_LINE_PATTERN, line) is not None
+    """Return whether a line must stay on its own when wrapped lines are joined.
+
+    True for any line starting with "المادة" and for OCR headings that the
+    stricter rule in headings.py recognises (e.g. reversed lines).
+    """
+    return re.match(ARTICLE_LINE_PATTERN, line) is not None or is_article_heading_line(line)
 
 
 def _clean_page_lines(
