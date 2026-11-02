@@ -13,6 +13,8 @@ SEED_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "seed"
 # same OCR text, which the reviewed text corrections are written against.
 PAGE_TEXT_CACHE_DIR: Final[Path] = PROJECT_ROOT / "data" / "ocr"
 SEED_CORRECTIONS_FILE: Final[str] = "text_corrections.json"
+SEED_REFERENCE_FILE: Final[str] = "reference_data.json"
+SEED_RESOURCES_FILE: Final[str] = "resources.json"
 SEED_ISSUERS_FILE: Final[str] = "issuers.json"
 SEED_DOCUMENTS_FILE: Final[str] = "documents.json"
 SEED_RELATIONS_FILE: Final[str] = "relations.json"
@@ -254,6 +256,36 @@ PROCEDURE_REVIEW_DRAFT: Final[str] = "draft"
 
 
 EXPORT_COLUMNS: Final[dict[str, tuple[str, ...]]] = {
+    "roles": ("role_id", "name_ar", "name_en", "access_level", "can_approve"),
+    "actions": ("action_id", "name", "definition", "sensitivity", "output_button"),
+    "employees": ("employee_id", "name", "role_id", "department", "is_active"),
+    "resources": (
+        "resource_id",
+        "name",
+        "synonyms",
+        "resource_type",
+        "source_doc_id",
+        "source_article_id",
+        "classification_level",
+        "classification_basis",
+        "classification_ref",
+        "custodian",
+        "custodian_ref",
+        "review_status",
+        "updated_at",
+    ),
+    "decision_rules": (
+        "rule_id",
+        "role_id",
+        "resource_id",
+        "action_id",
+        "decision",
+        "approver_role_id",
+        "justification_article_id",
+        "source",
+        "explanation",
+        "updated_at",
+    ),
     "issuers": ("issuer_id", "name", "issuer_type", "referral_text"),
     "documents": (
         "doc_id",

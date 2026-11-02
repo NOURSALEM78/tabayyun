@@ -1,0 +1,194 @@
+{
+  "_note": "Roles, actions and employee accounts defined by the team. Role names follow the Civil Status Law. 'superior' is the role that approves this role's requests; null means the request goes to المديرية العامة للأحوال المدنية (CSL Art. 22). Employee names are accounts for using and testing the system.",
+  "roles": [
+    {
+      "role_id": "R1",
+      "name_ar": "كاتب السجل",
+      "name_en": "Registrar",
+      "access_level": 3,
+      "can_approve": false,
+      "superior": "R3",
+      "source": "نظام الأحوال المدنية، المواد 14 و18 و21"
+    },
+    {
+      "role_id": "R2",
+      "name_ar": "أمين خزانة المحفوظات",
+      "name_en": "Records Custodian",
+      "access_level": 3,
+      "can_approve": false,
+      "superior": "R3",
+      "source": "نظام الأحوال المدنية، المادة 27"
+    },
+    {
+      "role_id": "R3",
+      "name_ar": "رئيس مكتب الأحوال المدنية",
+      "name_en": "Civil Affairs Office Head",
+      "access_level": 3,
+      "can_approve": true,
+      "superior": "R4",
+      "source": "نظام الأحوال المدنية، المادتان 14 و24"
+    },
+    {
+      "role_id": "R4",
+      "name_ar": "مدير إدارة الأحوال المدنية",
+      "name_en": "Civil Affairs Department Director",
+      "access_level": 4,
+      "can_approve": true,
+      "superior": null,
+      "source": "نظام الأحوال المدنية، المادتان 19 و22"
+    },
+    {
+      "role_id": "R5",
+      "name_ar": "عضو اللجنة الفرعية",
+      "name_en": "Sub-Committee Member",
+      "access_level": 3,
+      "can_approve": true,
+      "superior": "R4",
+      "source": "نظام الأحوال المدنية، المواد 15 و82 و83"
+    },
+    {
+      "role_id": "R6",
+      "name_ar": "عضو اللجنة المحلية",
+      "name_en": "Local Committee Member",
+      "access_level": 3,
+      "can_approve": true,
+      "superior": "R4",
+      "source": "نظام الأحوال المدنية، المواد 20 و26 و82"
+    },
+    {
+      "role_id": "R7",
+      "name_ar": "مسؤول النظام",
+      "name_en": "System Administrator",
+      "access_level": 1,
+      "can_approve": false,
+      "superior": "R3",
+      "source": "دور تقني لإدارة المنصة"
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "A1",
+      "name": "اطلاع",
+      "definition": "عرض محتوى المورد دون إنشاء نسخة منه أو تغييره.",
+      "sensitivity": "منخفضة",
+      "output_button": "عرض المورد: يُعرض للقراءة فقط دون تحميل أو نسخ.",
+      "source": "نظام الأحوال المدنية، المادة 11 (الاطلاع والفحص)"
+    },
+    {
+      "action_id": "A2",
+      "name": "تحميل",
+      "definition": "إنشاء نسخة من المورد أو استخراج صورة منه.",
+      "sensitivity": "متوسطة",
+      "output_button": "تحميل نسخة: تُنزَّل نسخة من المورد.",
+      "source": "نظام الأحوال المدنية، المادة 23 (استخراج صورة رسمية)"
+    },
+    {
+      "action_id": "A3",
+      "name": "تعديل",
+      "definition": "إضافة بيانات إلى المورد أو حذفها منه أو تغييرها.",
+      "sensitivity": "مرتفعة",
+      "output_button": "تعديل المورد: يُفتح المورد في وضع التعديل.",
+      "source": "نظام الأحوال المدنية، المادة 15 (الإضافة أو الحذف أو التعديل)"
+    },
+    {
+      "action_id": "A4",
+      "name": "مشاركة",
+      "definition": "نقل المورد أو إتاحته لشخص أو جهة أخرى.",
+      "sensitivity": "مرتفعة",
+      "output_button": "مشاركة المورد: يُحدَّد المستلم ثم يُرسل إليه المورد.",
+      "source": "نظام الأحوال المدنية، المادة 11 (عدم جواز نقل السجلات)"
+    }
+  ],
+  "employees": [
+    {
+      "employee_id": "E001",
+      "name": "سارة العتيبي",
+      "role_id": "R1",
+      "department": "مكتب الأحوال المدنية - العزيزية"
+    },
+    {
+      "employee_id": "E002",
+      "name": "عبدالله الشهري",
+      "role_id": "R1",
+      "department": "مكتب الأحوال المدنية - الشرائع"
+    },
+    {
+      "employee_id": "E003",
+      "name": "ريم الزهراني",
+      "role_id": "R1",
+      "department": "مكتب الأحوال المدنية - العزيزية"
+    },
+    {
+      "employee_id": "E004",
+      "name": "خالد الحربي",
+      "role_id": "R1",
+      "department": "مكتب الأحوال المدنية - الشرائع"
+    },
+    {
+      "employee_id": "E005",
+      "name": "نورة الغامدي",
+      "role_id": "R2",
+      "department": "خزانة المحفوظات"
+    },
+    {
+      "employee_id": "E006",
+      "name": "ماجد السبيعي",
+      "role_id": "R2",
+      "department": "خزانة المحفوظات"
+    },
+    {
+      "employee_id": "E007",
+      "name": "فهد القحطاني",
+      "role_id": "R3",
+      "department": "مكتب الأحوال المدنية - العزيزية"
+    },
+    {
+      "employee_id": "E008",
+      "name": "منى العمري",
+      "role_id": "R3",
+      "department": "مكتب الأحوال المدنية - الشرائع"
+    },
+    {
+      "employee_id": "E009",
+      "name": "عبدالرحمن المالكي",
+      "role_id": "R4",
+      "department": "إدارة الأحوال المدنية بالمنطقة"
+    },
+    {
+      "employee_id": "E010",
+      "name": "لمى الجهني",
+      "role_id": "R5",
+      "department": "اللجنة الفرعية"
+    },
+    {
+      "employee_id": "E011",
+      "name": "سلطان الرشيدي",
+      "role_id": "R5",
+      "department": "اللجنة الفرعية"
+    },
+    {
+      "employee_id": "E012",
+      "name": "هيفاء المطيري",
+      "role_id": "R6",
+      "department": "اللجنة المحلية"
+    },
+    {
+      "employee_id": "E013",
+      "name": "تركي الدوسري",
+      "role_id": "R6",
+      "department": "اللجنة المحلية"
+    },
+    {
+      "employee_id": "E014",
+      "name": "يوسف البقمي",
+      "role_id": "R7",
+      "department": "تقنية المعلومات"
+    },
+    {
+      "employee_id": "E015",
+      "name": "أمل الثبيتي",
+      "role_id": "R7",
+      "department": "تقنية المعلومات"
+    }
+  ]
+}

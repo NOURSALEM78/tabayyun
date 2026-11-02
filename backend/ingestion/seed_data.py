@@ -22,7 +22,15 @@ from backend.ingestion.constants import (
     SEED_DOCUMENTS_FILE,
     SEED_ISSUERS_FILE,
     SEED_PROCEDURES_FILE,
+    SEED_REFERENCE_FILE,
     SEED_RELATIONS_FILE,
+    SEED_RESOURCES_FILE,
+)
+from backend.services.constants import SECTOR_LAW_CODE, SECTOR_RULE_ARTICLES
+from backend.services.decision_matrix import (
+    ResourceSpec,
+    RoleSpec,
+    build_decision_rules,
 )
 
 logger = logging.getLogger(__name__)
@@ -43,6 +51,11 @@ class SeedRows:
     relations: tuple[Row, ...]
     procedures: tuple[Row, ...]
     requirements: tuple[Row, ...]
+    roles: tuple[Row, ...] = ()
+    actions: tuple[Row, ...] = ()
+    employees: tuple[Row, ...] = ()
+    resources: tuple[Row, ...] = ()
+    decision_rules: tuple[Row, ...] = ()
 
 
 def _load(path: Path, key: str) -> list[dict[str, Any]]:
@@ -201,6 +214,75 @@ def _procedure_rows(
     return procedures, requirements
 
 
+def _access_rows(
+    seed_dir: Path,
+    doc_ids: dict[str, int],
+    article_ids: dict[ArticleKey, int],
+    timestamp: datetime,
+) -> tuple[list[Row], list[Row], list[Row], list[Row], list[Row]]:
+    """Build roles, actions, employees and resources, then generate the decision matrix."""
+    with (seed_dir / SEED_REFERENCE_FILE).open(encoding="utf-8") as handle:
+        reference = json.load(handle)
+    resource_entries = _load(seed_dir / SEED_RESOURCES_FILE, "resources")
+    role_ids = {role["role_id"] for role in reference["roles"]}
+
+    roles = [
+        {key: role[key] for key in ("role_id", "name_ar", "name_en", "access_level", "can_approve")}
+        for role in reference["roles"]
+    ]
+    actions = [
+        {
+            key: action[key]
+            for key in ("action_id", "name", "definition", "sensitivity", "output_button")
+        }
+        for action in reference["actions"]
+    ]
+    employees = []
+    for employee in reference["employees"]:
+        if employee["role_id"] not in role_ids:
+            raise SeedDataError(f"Unknown role {employee['role_id']} for {employee['employee_id']}")
+        employees.append({**employee, "is_active": employee.get("is_active", True)})
+
+    resources = [
+        {
+            "resource_id": entry["resource_id"],
+            "name": entry["name"],
+            "synonyms": entry.get("synonyms", []),
+            "resource_type": entry["resource_type"],
+            "source_doc_id": doc_ids[entry["source"]["doc"]],
+            "source_article_id": _article_id(entry["source"], article_ids),
+            "classification_level": entry["classification_level"],
+            "classification_basis": entry["classification_basis"],
+            "classification_ref": entry["classification_ref"],
+            "custodian": entry["custodian"],
+            "custodian_ref": entry["custodian_ref"],
+            "review_status": entry.get("review_status", PROCEDURE_REVIEW_DRAFT),
+            "updated_at": timestamp,
+        }
+        for entry in resource_entries
+    ]
+    rules = build_decision_rules(
+        [
+            RoleSpec(r["role_id"], r["name_ar"], r["access_level"], r["can_approve"], r["superior"])
+            for r in reference["roles"]
+        ],
+        [
+            ResourceSpec(
+                e["resource_id"], e["name"], e["classification_level"], tuple(e["sector_rules"])
+            )
+            for e in resource_entries
+        ],
+        [(action["action_id"], action["name"]) for action in reference["actions"]],
+        {
+            number: _article_id({"doc": SECTOR_LAW_CODE, "article": number}, article_ids)
+            for number in SECTOR_RULE_ARTICLES.values()
+        },
+    )
+    for rule in rules:
+        rule["updated_at"] = timestamp
+    return roles, actions, employees, resources, rules
+
+
 def load_seed_rows(
     article_ids: dict[ArticleKey, int],
     source_hashes: dict[str, str],
@@ -218,13 +300,30 @@ def load_seed_rows(
     procedures, requirements = _procedure_rows(
         _load(seed_dir / SEED_PROCEDURES_FILE, "procedures"), doc_ids, article_ids, timestamp
     )
+    roles, actions, employees, resources, rules = _access_rows(
+        seed_dir, doc_ids, article_ids, timestamp
+    )
     logger.info(
-        "Loaded seed data: %d issuers, %d documents, %d relations, %d procedures",
+        "Loaded seed data: %d issuers, %d documents, %d relations, %d procedures, "
+        "%d roles, %d employees, %d resources, %d decision rules",
         len(issuers),
         len(documents),
         len(relations),
         len(procedures),
+        len(roles),
+        len(employees),
+        len(resources),
+        len(rules),
     )
     return SeedRows(
-        tuple(issuers), tuple(documents), tuple(relations), tuple(procedures), tuple(requirements)
+        tuple(issuers),
+        tuple(documents),
+        tuple(relations),
+        tuple(procedures),
+        tuple(requirements),
+        tuple(roles),
+        tuple(actions),
+        tuple(employees),
+        tuple(resources),
+        tuple(rules),
     )

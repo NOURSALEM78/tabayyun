@@ -49,6 +49,11 @@ def write_workbook(
         "document_relations": list(result.document_relations),
         "procedures": list(result.procedures),
         "procedure_requirements": list(result.procedure_requirements),
+        "roles": list(result.roles),
+        "actions": list(result.actions),
+        "employees": list(result.employees),
+        "resources": list(result.resources),
+        "decision_rules": list(result.decision_rules),
         "validation": [dict(row) for row in validation_rows],
         "amendment_markers": list(result.amendment_markers),
     }

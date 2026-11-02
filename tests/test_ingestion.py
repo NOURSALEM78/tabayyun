@@ -486,9 +486,60 @@ def test_seed_rows_resolve_documents_relations_and_procedures(tmp_path: Path) ->
             },
         ],
     )
-    article_ids = {("CSR", 2): 7}
+    (tmp_path / "reference_data.json").write_text(
+        json.dumps(
+            {
+                "roles": [
+                    {
+                        "role_id": "R1",
+                        "name_ar": "كاتب السجل",
+                        "name_en": "Registrar",
+                        "access_level": 3,
+                        "can_approve": False,
+                        "superior": None,
+                    },
+                ],
+                "actions": [
+                    {
+                        "action_id": "A1",
+                        "name": "اطلاع",
+                        "definition": "عرض",
+                        "sensitivity": "منخفضة",
+                        "output_button": "عرض",
+                    },
+                ],
+                "employees": [
+                    {"employee_id": "E001", "name": "موظف", "role_id": "R1", "department": "مكتب"},
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        "utf-8",
+    )
+    write(
+        "resources.json",
+        "resources",
+        [
+            {
+                "resource_id": "RS001",
+                "name": "سجل",
+                "synonyms": [],
+                "resource_type": "سجل",
+                "source": {"doc": "CSR", "article": 2},
+                "classification_level": 3,
+                "classification_basis": "سري",
+                "classification_ref": "مرجع",
+                "custodian": "جهة",
+                "custodian_ref": "مرجع",
+                "sector_rules": [],
+            },
+        ],
+    )
+    article_ids = {("CSR", 2): 7, ("CSL", 11): 11, ("CSL", 15): 15, ("CSL", 23): 23}
 
     rows = load_seed_rows(article_ids, {}, datetime(2026, 1, 1, tzinfo=UTC), seed_dir=tmp_path)
+    assert len(rows.decision_rules) == 1
+    assert rows.employees[0]["is_active"] is True
 
     old = next(row for row in rows.documents if row["title"] == "لائحة قديمة")
     assert old["doc_id"] == max(spec.doc_id for spec in DOCUMENT_SPECS) + 1

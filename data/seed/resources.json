@@ -1,0 +1,790 @@
+{
+  "_note": "Resources named in the source documents, with their SDAIA classification, custodian and source article. sector_rules lists the Civil Status Law rules that apply: no_transfer (Art. 11: sharing is denied), committee_edit (Art. 15: edits need the sub-committee), official_copy (Art. 23: copies need approval after checking the requester's interest). review_status stays draft until the team approves each classification.",
+  "resources": [
+    {
+      "resource_id": "RS001",
+      "name": "السجل المدني المركزي",
+      "synonyms": [
+        "السجل المدني"
+      ],
+      "resource_type": "سجل",
+      "source": {
+        "doc": "CSL",
+        "article": 6
+      },
+      "classification_level": 3,
+      "classification_basis": "نص النظام على أن ما تحويه السجلات المدنية من بيانات يُعد سريًا، ولا يجوز نقلها من دوائر ومكاتب الأحوال المدنية.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "المديرية العامة للأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 2 و6",
+      "sector_rules": [
+        "no_transfer",
+        "committee_edit",
+        "official_copy"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS002",
+      "name": "سجلات الواقعات",
+      "synonyms": [
+        "سجل الواقعات",
+        "قيود الواقعات"
+      ],
+      "resource_type": "سجل",
+      "source": {
+        "doc": "CSL",
+        "article": 8
+      },
+      "classification_level": 3,
+      "classification_basis": "نص النظام على أن ما تحويه السجلات المدنية من بيانات يُعد سريًا، ولا يجوز نقلها من دوائر ومكاتب الأحوال المدنية.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة أو مكتب الأحوال المدنية المختص",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 11",
+      "sector_rules": [
+        "no_transfer",
+        "committee_edit",
+        "official_copy"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS003",
+      "name": "سجل المواليد",
+      "synonyms": [
+        "سجل الولادات"
+      ],
+      "resource_type": "سجل",
+      "source": {
+        "doc": "CSL",
+        "article": 8
+      },
+      "classification_level": 3,
+      "classification_basis": "نص النظام على أن ما تحويه السجلات المدنية من بيانات يُعد سريًا، ولا يجوز نقلها من دوائر ومكاتب الأحوال المدنية.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مكتب الأحوال المدنية (كاتب سجل المواليد)",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 8 و41",
+      "sector_rules": [
+        "no_transfer",
+        "committee_edit",
+        "official_copy"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS004",
+      "name": "سجل الوفيات",
+      "synonyms": [],
+      "resource_type": "سجل",
+      "source": {
+        "doc": "CSL",
+        "article": 8
+      },
+      "classification_level": 3,
+      "classification_basis": "نص النظام على أن ما تحويه السجلات المدنية من بيانات يُعد سريًا، ولا يجوز نقلها من دوائر ومكاتب الأحوال المدنية.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مكتب الأحوال المدنية (كاتب سجل الوفيات)",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 8 و57",
+      "sector_rules": [
+        "no_transfer",
+        "committee_edit",
+        "official_copy"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS005",
+      "name": "سجل الزواج والطلاق",
+      "synonyms": [
+        "قيد الزوجين"
+      ],
+      "resource_type": "سجل",
+      "source": {
+        "doc": "CSL",
+        "article": 8
+      },
+      "classification_level": 3,
+      "classification_basis": "نص النظام على أن ما تحويه السجلات المدنية من بيانات يُعد سريًا، ولا يجوز نقلها من دوائر ومكاتب الأحوال المدنية.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 8 و48",
+      "sector_rules": [
+        "no_transfer",
+        "committee_edit",
+        "official_copy"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS006",
+      "name": "سجلات الأجانب",
+      "synonyms": [
+        "السجل الأجنبي"
+      ],
+      "resource_type": "سجل",
+      "source": {
+        "doc": "CSL",
+        "article": 7
+      },
+      "classification_level": 3,
+      "classification_basis": "نص النظام على أن ما تحويه السجلات المدنية من بيانات يُعد سريًا، ولا يجوز نقلها من دوائر ومكاتب الأحوال المدنية.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مكتب الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 7",
+      "sector_rules": [
+        "no_transfer",
+        "committee_edit",
+        "official_copy"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS007",
+      "name": "ملف الأساس",
+      "synonyms": [
+        "الأساس",
+        "ملف أساس صاحب الشأن"
+      ],
+      "resource_type": "ملف",
+      "source": {
+        "doc": "CSR",
+        "article": 2
+      },
+      "classification_level": 3,
+      "classification_basis": "يحفظ فيه كافة الوثائق والمستندات الخاصة بالحالة المدنية للمواطن، وهي من بيانات السجلات المدنية التي نص النظام على سريتها.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مركز وثائق الهوية الوطنية في المكتب أو الأرشيف المركزي",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادتان 2 و3",
+      "sector_rules": [
+        "no_transfer",
+        "official_copy"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS008",
+      "name": "سجل الخصائص الحيوية",
+      "synonyms": [
+        "البصمة",
+        "الخصائص الحيوية"
+      ],
+      "resource_type": "سجل",
+      "source": {
+        "doc": "CSL",
+        "article": 16
+      },
+      "classification_level": 3,
+      "classification_basis": "يحتوي المورد على بيانات حيوية (بصمات) لكل مواطن، ويترتب على كشفها ضرر بالغ بالفرد يتعذر تداركه.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 11؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "المديرية العامة للأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 16",
+      "sector_rules": [
+        "no_transfer"
+      ],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS009",
+      "name": "محضر العثور على لقيط",
+      "synonyms": [
+        "محضر بالواقعة"
+      ],
+      "resource_type": "محضر",
+      "source": {
+        "doc": "CSL",
+        "article": 39
+      },
+      "classification_level": 3,
+      "classification_basis": "يتعلق المورد بطفل لقيط، وأوجب النظام عدم ذكر أنه لقيط في شهادة ميلاده، فكشفه يلحق ضررًا بالغًا بالطفل.",
+      "classification_ref": "نظام الأحوال المدنية، المادتان 39 و40؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مركز الشرطة أو الحاكم الإداري، ثم مكتب الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 39",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS010",
+      "name": "شهادة وفاة العسكريين",
+      "synonyms": [
+        "شهادة وفاة الجنود"
+      ],
+      "resource_type": "شهادة",
+      "source": {
+        "doc": "CSL",
+        "article": 61
+      },
+      "classification_level": 3,
+      "classification_basis": "تتعلق بالوفاة أثناء العمليات الحربية أو المهمات المماثلة، ويترتب على كشفها ضرر بالمصالح الأمنية.",
+      "classification_ref": "نظام الأحوال المدنية، المادة 61؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "القادة العسكريون، وإدارة الأحوال المدنية في المنطقة",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 61",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS011",
+      "name": "شهادة الميلاد",
+      "synonyms": [
+        "شهادة ميلاد"
+      ],
+      "resource_type": "شهادة",
+      "source": {
+        "doc": "CSL",
+        "article": 41
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مكتب الأحوال المدنية (كاتب سجل المواليد)",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 41",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS012",
+      "name": "شهادة الوفاة",
+      "synonyms": [
+        "شهادة وفاة"
+      ],
+      "resource_type": "شهادة",
+      "source": {
+        "doc": "CSL",
+        "article": 57
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مكتب الأحوال المدنية (كاتب سجل الوفيات)",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 57",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS013",
+      "name": "بطاقة الهوية الوطنية",
+      "synonyms": [
+        "البطاقة الشخصية",
+        "الهوية الوطنية"
+      ],
+      "resource_type": "بطاقة",
+      "source": {
+        "doc": "CSL",
+        "article": 67
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "تصدرها إدارات ومكاتب الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 3 و67",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS014",
+      "name": "دفتر العائلة",
+      "synonyms": [
+        "سجل الأسرة"
+      ],
+      "resource_type": "دفتر",
+      "source": {
+        "doc": "CSL",
+        "article": 72
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "تصدره إدارات ومكاتب الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 3 و72",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS015",
+      "name": "حفيظة النفوس",
+      "synonyms": [
+        "الحفيظة"
+      ],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "CSL",
+        "article": 89
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية (أساس وسجل الحفيظة)",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادة 52",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS016",
+      "name": "وثائق الزواج والطلاق والرجعة",
+      "synonyms": [
+        "عقد الزواج",
+        "وثيقة الطلاق",
+        "وثيقة الرجعة"
+      ],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "CSL",
+        "article": 46
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 46 و48",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS017",
+      "name": "محضر الوفاة عند تنفيذ حكم القتل",
+      "synonyms": [
+        "محضر بالوفاة"
+      ],
+      "resource_type": "محضر",
+      "source": {
+        "doc": "CSL",
+        "article": 62
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "الحاكم الإداري، ويُرسل إلى إدارة الأحوال المدنية المختصة",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 62",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS018",
+      "name": "محضر العثور على جثة",
+      "synonyms": [],
+      "resource_type": "محضر",
+      "source": {
+        "doc": "CSL",
+        "article": 63
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "دائرة الشرطة أو أمير القرية أو المركز",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 63",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS019",
+      "name": "إذن الدفن",
+      "synonyms": [
+        "رخصة الدفن"
+      ],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "CSL",
+        "article": 64
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "حارس المقبرة، ثم إدارة الأحوال المدنية المختصة",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 64 و66",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS020",
+      "name": "دفاتر الولادات في المنشآت الصحية",
+      "synonyms": [],
+      "resource_type": "دفتر",
+      "source": {
+        "doc": "CSL",
+        "article": 44
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مديرو المستشفيات والمستوصفات والجهات التي تحدث فيها الولادة",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 44",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS021",
+      "name": "البيان الأسبوعي لواقعات الولادة",
+      "synonyms": [],
+      "resource_type": "بيان",
+      "source": {
+        "doc": "CSL",
+        "article": 42
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 42",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS022",
+      "name": "البيان الأسبوعي لواقعات الزواج والطلاق",
+      "synonyms": [],
+      "resource_type": "بيان",
+      "source": {
+        "doc": "CSL",
+        "article": 51
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 51",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS023",
+      "name": "الصورة الرسمية من القيد",
+      "synonyms": [
+        "شريحة بيانات المواطن",
+        "صورة القيد"
+      ],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "CSR",
+        "article": 68
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة أو مكتب الأحوال المدنية",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 23؛ واللائحة، المادة 68",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS024",
+      "name": "صك حصر الإرث",
+      "synonyms": [
+        "صك حصر الورثة"
+      ],
+      "resource_type": "صك",
+      "source": {
+        "doc": "CSR",
+        "article": 41
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "المحكمة المختصة، وتُحفظ صورته في ملف الأساس",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادتان 41 و52",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS025",
+      "name": "التقرير الطبي المثبت للولادة",
+      "synonyms": [
+        "تقرير طبي"
+      ],
+      "resource_type": "تقرير",
+      "source": {
+        "doc": "CSR",
+        "article": 92
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات صحية تخص فردًا محددًا، وصنفت السياسة الملف الصحي للأفراد مقيّدًا.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "المستشفيات والجهات الإسعافية، وتُرفق بطلب التسجيل",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادة 92",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS026",
+      "name": "إقرارات صلة القرابة",
+      "synonyms": [],
+      "resource_type": "إقرار",
+      "source": {
+        "doc": "CSR",
+        "article": 52
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادة 52",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS027",
+      "name": "طلب تعديل البيانات",
+      "synonyms": [
+        "طلب التعديل",
+        "طلب التصحيح"
+      ],
+      "resource_type": "طلب",
+      "source": {
+        "doc": "CSR",
+        "article": 26
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة أو مكتب الأحوال المدنية",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادة 26",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS028",
+      "name": "شهادة التسجيل",
+      "synonyms": [],
+      "resource_type": "شهادة",
+      "source": {
+        "doc": "CSR",
+        "article": 34
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادتان 34 و74",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS029",
+      "name": "ملف طلب الجنسية",
+      "synonyms": [
+        "طلب الجنسية",
+        "طلب التجنس"
+      ],
+      "resource_type": "ملف",
+      "source": {
+        "doc": "NAT",
+        "article": 9
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية، ويُرفع إلى وزير الداخلية",
+      "custodian_ref": "اللائحة التنفيذية لنظام الجنسية، المادتان 7 و27",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS030",
+      "name": "إقرارات وإعلانات الجنسية",
+      "synonyms": [
+        "الإقرارات والإعلانات"
+      ],
+      "resource_type": "إقرار",
+      "source": {
+        "doc": "NATR",
+        "article": 23
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على بيانات شخصية تخص فردًا محددًا، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض على الفرد.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارات الأحوال المدنية أو ممثليات المملكة في الخارج",
+      "custodian_ref": "اللائحة التنفيذية لنظام الجنسية، المادة 23",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS031",
+      "name": "محاضر فحص السجلات",
+      "synonyms": [],
+      "resource_type": "محضر",
+      "source": {
+        "doc": "CSL",
+        "article": 26
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على معلومات تشغيلية داخلية غير مخصصة للعامة، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "اللجنة المحلية، ويُرفع إلى الهيئة",
+      "custodian_ref": "نظام الأحوال المدنية، المادتان 26 و87",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS032",
+      "name": "قرارات اللجان الفرعية",
+      "synonyms": [
+        "قرار اللجنة"
+      ],
+      "resource_type": "قرار",
+      "source": {
+        "doc": "CSL",
+        "article": 84
+      },
+      "classification_level": 2,
+      "classification_basis": "يحتوي المورد على معلومات تشغيلية داخلية غير مخصصة للعامة، ويترتب على الإفصاح غير المصرح به عنها أثر منخفض.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "اللجنة الفرعية، وتُرفع نسخة إلى المديرية",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 84",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS033",
+      "name": "قرارات منح الجنسية وإسقاطها",
+      "synonyms": [
+        "قرار منح الجنسية"
+      ],
+      "resource_type": "قرار",
+      "source": {
+        "doc": "NATR",
+        "article": 33
+      },
+      "classification_level": 1,
+      "classification_basis": "تُنشر هذه القرارات في الجريدة الرسمية (أم القرى)، فهي متاحة للعامة.",
+      "classification_ref": "اللائحة التنفيذية لنظام الجنسية، المادة 33؛ وسياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارة الأحوال المدنية المعنية، والجريدة الرسمية",
+      "custodian_ref": "اللائحة التنفيذية لنظام الجنسية، المادة 33",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS034",
+      "name": "نموذج التبليغ عن المواليد",
+      "synonyms": [],
+      "resource_type": "نموذج",
+      "source": {
+        "doc": "CSL",
+        "article": 34
+      },
+      "classification_level": 1,
+      "classification_basis": "مورد منشور أو مخصص للعامة، ولا يترتب على إتاحته أي أثر.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مكاتب الأحوال المدنية (متاح للمبلّغين)",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 34",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS035",
+      "name": "نموذج التبليغ عن الوفاة",
+      "synonyms": [],
+      "resource_type": "نموذج",
+      "source": {
+        "doc": "CSL",
+        "article": 54
+      },
+      "classification_level": 1,
+      "classification_basis": "مورد منشور أو مخصص للعامة، ولا يترتب على إتاحته أي أثر.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "مكاتب الأحوال المدنية (متاح للمبلّغين)",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 54",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS036",
+      "name": "نموذج طلب تسجيل الواقعة",
+      "synonyms": [],
+      "resource_type": "نموذج",
+      "source": {
+        "doc": "CSR",
+        "article": 56
+      },
+      "classification_level": 1,
+      "classification_basis": "مورد منشور أو مخصص للعامة، ولا يترتب على إتاحته أي أثر.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارات ومكاتب الأحوال المدنية",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادة 56",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS037",
+      "name": "نموذج طلب الجنسية",
+      "synonyms": [],
+      "resource_type": "نموذج",
+      "source": {
+        "doc": "NATR",
+        "article": 7
+      },
+      "classification_level": 1,
+      "classification_basis": "مورد منشور أو مخصص للعامة، ولا يترتب على إتاحته أي أثر.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "إدارات الأحوال المدنية",
+      "custodian_ref": "اللائحة التنفيذية لنظام الجنسية، المادة 7",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS038",
+      "name": "نص نظام الأحوال المدنية",
+      "synonyms": [],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "CSL",
+        "article": 96
+      },
+      "classification_level": 1,
+      "classification_basis": "نظام منشور في الجريدة الرسمية.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "الجريدة الرسمية (منشور للعامة)",
+      "custodian_ref": "نظام الأحوال المدنية، المادة 96",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS039",
+      "name": "نص اللائحة التنفيذية لنظام الأحوال المدنية",
+      "synonyms": [],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "CSR",
+        "article": 199
+      },
+      "classification_level": 1,
+      "classification_basis": "لائحة منشورة في الجريدة الرسمية.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "الجريدة الرسمية (منشور للعامة)",
+      "custodian_ref": "اللائحة التنفيذية لنظام الأحوال المدنية، المادة 199",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS040",
+      "name": "نص نظام الجنسية العربية السعودية",
+      "synonyms": [],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "NAT",
+        "article": 30
+      },
+      "classification_level": 1,
+      "classification_basis": "نظام منشور في الجريدة الرسمية.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "الجريدة الرسمية (منشور للعامة)",
+      "custodian_ref": "نظام الجنسية العربية السعودية، المادة 30",
+      "sector_rules": [],
+      "review_status": "draft"
+    },
+    {
+      "resource_id": "RS041",
+      "name": "نص اللائحة التنفيذية لنظام الجنسية",
+      "synonyms": [],
+      "resource_type": "وثيقة",
+      "source": {
+        "doc": "NATR",
+        "article": 35
+      },
+      "classification_level": 1,
+      "classification_basis": "لائحة منشورة في الجريدة الرسمية.",
+      "classification_ref": "سياسة تصنيف البيانات، سياسات حوكمة البيانات الوطنية (سدايا، 2021)، الجدول رقم (1)",
+      "custodian": "الجريدة الرسمية (منشور للعامة)",
+      "custodian_ref": "اللائحة التنفيذية لنظام الجنسية، المادة 35",
+      "sector_rules": [],
+      "review_status": "draft"
+    }
+  ]
+}

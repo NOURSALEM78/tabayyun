@@ -46,6 +46,11 @@ class ExtractionResult:
     procedures: tuple[Row, ...]
     procedure_requirements: tuple[Row, ...]
     amendment_markers: tuple[Row, ...]
+    roles: tuple[Row, ...] = ()
+    actions: tuple[Row, ...] = ()
+    employees: tuple[Row, ...] = ()
+    resources: tuple[Row, ...] = ()
+    decision_rules: tuple[Row, ...] = ()
 
 
 def classify_rule_type(text: str) -> str:
@@ -167,4 +172,9 @@ def extract_knowledge(
         procedures=seed.procedures,
         procedure_requirements=seed.requirements,
         amendment_markers=amendment_markers,
+        roles=seed.roles,
+        actions=seed.actions,
+        employees=seed.employees,
+        resources=seed.resources,
+        decision_rules=seed.decision_rules,
     )

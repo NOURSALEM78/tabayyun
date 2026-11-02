@@ -9,6 +9,7 @@ from typing import Any
 
 from openpyxl import load_workbook
 from sqlalchemy import (
+    ARRAY,
     Boolean,
     Date,
     DateTime,
@@ -26,14 +27,19 @@ from sqlalchemy.sql.schema import Column
 
 from backend.db.database import engine, init_db
 from backend.db.models import (
+    Action,
     Article,
     Chunk,
+    DecisionRule,
     Document,
     DocumentRelation,
+    Employee,
     IngestionLog,
     Issuer,
     Procedure,
     ProcedureRequirement,
+    Resource,
+    Role,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,6 +52,11 @@ SHEET_MODELS = (
     ("document_relations", DocumentRelation),
     ("procedures", Procedure),
     ("procedure_requirements", ProcedureRequirement),
+    ("roles", Role),
+    ("actions", Action),
+    ("employees", Employee),
+    ("resources", Resource),
+    ("decision_rules", DecisionRule),
 )
 
 
@@ -84,10 +95,10 @@ def convert_excel_value(value: Any, column: Column[Any]) -> Any:
             return value
         return date.fromisoformat(str(value))
 
-    if column.name == "aliases":
+    if isinstance(column.type, ARRAY):
         parsed = json.loads(value) if isinstance(value, str) else value
         if not isinstance(parsed, list) or not all(isinstance(item, str) for item in parsed):
-            raise ValueError("Expected aliases to be a JSON list of strings")
+            raise ValueError(f"Expected {column.name} to be a JSON list of strings")
         return parsed
 
     if isinstance(column.type, String):
