@@ -75,7 +75,11 @@ def _header_markers_for_source(filename: str) -> tuple[str, ...]:
 def _clean_sources(source_pages: dict[str, list[str]]) -> dict[str, str]:
     """Clean page text and split the combined nationality source logically."""
     cleaned_sources = {
-        filename: clean_document_pages(pages, _header_markers_for_source(filename))
+        filename: clean_document_pages(
+            pages,
+            _header_markers_for_source(filename),
+            join_lines=filename not in TEXT_LAYER_SOURCE_FILENAMES,
+        )
         for filename, pages in source_pages.items()
     }
     nationality_filename = TEXT_LAYER_SOURCE_FILENAMES[0]
@@ -150,20 +154,7 @@ def run_pipeline() -> PipelineSummary:
         )
         for spec in DOCUMENT_SPECS
     )
-    knowledge_texts = {
-        spec.code: (
-            cleaned_sources[spec.code]
-            if spec.code in cleaned_sources
-            else cleaned_sources[spec.source_filename]
-        )
-        for spec in DOCUMENT_SPECS
-    }
-    extraction = extract_knowledge(
-        articles,
-        knowledge_texts,
-        source_hashes,
-        amendment_markers,
-    )
+    extraction = extract_knowledge(articles, source_hashes, amendment_markers)
     workbook_path = write_workbook(extraction, validation_rows, EXPORT_PATH)
     summary = PipelineSummary(
         extraction=extraction,

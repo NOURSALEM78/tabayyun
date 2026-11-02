@@ -1,0 +1,634 @@
+{
+  "_note": "Draft procedures and their requirements, written by hand from the regulation text (review_status = draft until the team approves them). Each requirement cites its source article: doc = document code, article = article number. requirement_type: document | condition | statement | deadline | fee.",
+  "procedures": [
+    {
+      "name": "تغيير الاسم الأول لمن تجاوز ثمانية عشر عامًا",
+      "aliases": [
+        "تغيير الاسم",
+        "تغيير الاسم الأول",
+        "تعديل الاسم الأول"
+      ],
+      "description": "تغيير الاسم الأول للمواطن البالغ بناءً على إقراره.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 40
+      },
+      "requirements": [
+        {
+          "type": "condition",
+          "name": "أن يكون عمر صاحب الطلب أكثر من ثمانية عشر عامًا",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 40
+          }
+        },
+        {
+          "type": "statement",
+          "name": "إقرار صاحب الطلب برغبته في التغيير",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 40
+          }
+        },
+        {
+          "type": "condition",
+          "name": "أن يكون التغيير للمرة الأولى أو عودةً للاسم السابق، وإلا يُرفع الطلب للإدارة العامة بالمنطقة مع أسبابه",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 40
+          }
+        },
+        {
+          "type": "condition",
+          "name": "أن يكون الاسم الجديد متوافقًا مع ضوابط تسجيل الأسماء",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 115
+          }
+        }
+      ]
+    },
+    {
+      "name": "تغيير الاسم الأول لمن عمره أقل من ثمانية عشر عامًا",
+      "aliases": [
+        "تغيير اسم طفل",
+        "تغيير اسم قاصر"
+      ],
+      "description": "تغيير الاسم الأول للقاصر بناءً على إقرار والديه أو من ينوب عنهما.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 28
+      },
+      "requirements": [
+        {
+          "type": "statement",
+          "name": "إقرار من الوالدين، أو تفويض منهما عبر المنصة الإلكترونية، أو وكالة خاصة، أو عن طريق الولي الشرعي",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 28
+          }
+        },
+        {
+          "type": "condition",
+          "name": "أن يكون الاسم الجديد متوافقًا مع ضوابط تسجيل الأسماء",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 115
+          }
+        }
+      ]
+    },
+    {
+      "name": "حذف اسم الشهرة أو الفخذ أو القبيلة أو الجد الثاني",
+      "aliases": [
+        "حذف اسم القبيلة",
+        "حذف اسم العائلة",
+        "حذف الجد الثاني"
+      ],
+      "description": "حذف جزء من الاسم في السجل المدني مع بقائه في الأساس.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 41
+      },
+      "requirements": [
+        {
+          "type": "condition",
+          "name": "الرجوع إلى أساس صاحب الطلب عبر الأرشفة الإلكترونية والتأكد من عدم وجود ملاحظة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 41
+          }
+        },
+        {
+          "type": "condition",
+          "name": "ألا يكون الاسم المطلوب حذفه مبنيًا على إجراءات تجنس أو لجان منح الجنسية أو حفائظ النفوس",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 41
+          }
+        },
+        {
+          "type": "document",
+          "name": "إذا كان صاحب الاسم متوفى: وكالة خاصة من جميع الورثة الواردين في صك حصر الإرث، أو تفويض إلكتروني",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 41
+          }
+        },
+        {
+          "type": "condition",
+          "name": "ألا يقل الاسم عن رباعي في السجل المدني بعد الحذف",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 41
+          }
+        }
+      ]
+    },
+    {
+      "name": "تعديل اسم الأب أو الجد الأول أو إضافة اسم الجد الثاني",
+      "aliases": [
+        "تعديل اسم الأب",
+        "تعديل اسم الجد",
+        "إضافة الجد الثاني"
+      ],
+      "description": "تعديل أسماء الأصول في السجل المدني وفق الوثائق المثبتة.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 42
+      },
+      "requirements": [
+        {
+          "type": "condition",
+          "name": "الرجوع إلى أساس صاحب الطلب عبر الأرشفة الإلكترونية والتأكد من عدم وجود ملاحظة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 42
+          }
+        },
+        {
+          "type": "document",
+          "name": "الوثيقة السعودية المثبتة لهوية الأب",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 42
+          }
+        },
+        {
+          "type": "document",
+          "name": "إذا توفي الأب قبل حصوله على الحفيظة: وثائق الإخوة مع إقرار منهم (ولتعديل اسم الجد: وثائق الإخوة أو الأعمام أو أبناء العم المباشرين)",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 42
+          }
+        }
+      ]
+    },
+    {
+      "name": "تعديل اسم الشهرة أو الفخذ أو القبيلة",
+      "aliases": [
+        "تعديل اسم القبيلة",
+        "تعديل اسم العائلة"
+      ],
+      "description": "تعديل اسم الشهرة أو الفخذ أو القبيلة بعد التأكد من نظامية الاسم.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 43
+      },
+      "requirements": [
+        {
+          "type": "condition",
+          "name": "الرجوع إلى أساس صاحب الطلب عبر الأرشفة الإلكترونية والتأكد من عدم وجود ملاحظة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 43
+          }
+        },
+        {
+          "type": "document",
+          "name": "الوثيقة السعودية المثبتة لهوية الأب أو الجد، أو وثائق الإخوة أو الأعمام عند عدم وجودها",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 43
+          }
+        },
+        {
+          "type": "condition",
+          "name": "التأكد من نظامية الاسم المطلوب التعديل إليه من واقع الأساس",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 43
+          }
+        },
+        {
+          "type": "document",
+          "name": "إذا كان صاحب الاسم متوفى: وكالة خاصة بالتعديل من الورثة الواردين في صك حصر الإرث",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 43
+          }
+        }
+      ]
+    },
+    {
+      "name": "تعديل تاريخ الميلاد",
+      "aliases": [
+        "تصحيح تاريخ الميلاد",
+        "تغيير تاريخ الميلاد"
+      ],
+      "description": "تعديل تاريخ الميلاد في السجل المدني بعد التحقق من الضوابط.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 34
+      },
+      "requirements": [
+        {
+          "type": "condition",
+          "name": "ألا يكون قد سبق تعديل تاريخ الميلاد",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 34
+          }
+        },
+        {
+          "type": "condition",
+          "name": "ألا يكون التاريخ مبنيًا على شهادة ميلاد أو تقرير طبي معتمد، إلا لتصحيح خطأ مادي ثابت",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 34
+          }
+        },
+        {
+          "type": "condition",
+          "name": "ألا يؤدي التعديل إلى اختلاف ترتيبه بين إخوته أو فارق سن غير مقبول مع والديه أو أكبر أولاده",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 34
+          }
+        },
+        {
+          "type": "condition",
+          "name": "ألا يؤدي التعديل إلى مخالفة الأنظمة، كالالتحاق بالدراسة أو الوظيفة أو الحصول على الهوية قبل السن النظامية",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 34
+          }
+        },
+        {
+          "type": "condition",
+          "name": "إذا تجاوز التعديل خمس سنوات أو كان صاحب الطلب عسكريًا يُرفع الطلب للوكالة",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 34
+          }
+        }
+      ]
+    },
+    {
+      "name": "تعديل المهنة",
+      "aliases": [
+        "تغيير المهنة",
+        "تحديث المهنة"
+      ],
+      "description": "تعديل حقل المهنة في السجل المدني بناءً على مستند من جهة العمل.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 31
+      },
+      "requirements": [
+        {
+          "type": "document",
+          "name": "خطاب أو تعريف مثبت من الجهة التابع لها صاحب الطلب",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 31
+          }
+        },
+        {
+          "type": "document",
+          "name": "لمن انتهت خدماته لغير التقاعد: خطاب رسمي وصورة من قرار إنهاء الخدمة",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 31
+          }
+        },
+        {
+          "type": "statement",
+          "name": "للتعديل من (طالب/طالبة) إلى (متسبب/ربة منزل): إقرار بذلك",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 31
+          }
+        }
+      ]
+    },
+    {
+      "name": "تعديل مستوى التعليم",
+      "aliases": [
+        "تحديث المؤهل",
+        "تعديل المؤهل الدراسي"
+      ],
+      "description": "تعديل مستوى التعليم في السجل المدني.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 30
+      },
+      "requirements": [
+        {
+          "type": "document",
+          "name": "صورة من الوثيقة المثبتة لمستوى التعليم مصادق عليها بمطابقتها للأصل",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 30
+          }
+        }
+      ]
+    },
+    {
+      "name": "تعديل البيانات الرئيسية في السجل المدني",
+      "aliases": [
+        "تصحيح القيد",
+        "تعديل قيد رئيسي"
+      ],
+      "description": "تعديل البيانات الرئيسية في قيود الواقعات المدنية بعد تمام التسجيل.",
+      "responsible_department": "إدارة الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 33
+      },
+      "requirements": [
+        {
+          "type": "condition",
+          "name": "صدور قرار من اللجنة الفرعية المختصة بالتعديل",
+          "mandatory": true,
+          "source": {
+            "doc": "CSL",
+            "article": 15
+          }
+        },
+        {
+          "type": "condition",
+          "name": "عدم ورود اعتراض على التعديل",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 33
+          }
+        }
+      ]
+    },
+    {
+      "name": "استخراج صورة رسمية من قيد أو وثيقة",
+      "aliases": [
+        "طلب صورة قيد",
+        "نسخة من الوثيقة",
+        "صورة طبق الأصل"
+      ],
+      "description": "استخراج صورة رسمية طبق الأصل من القيود والوثائق المدنية.",
+      "responsible_department": "إدارة أو مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 70
+      },
+      "requirements": [
+        {
+          "type": "condition",
+          "name": "أن يكون الطالب صاحب القيد أو أحد أصوله أو فروعه أو زوجه، أو سلطة عامة مختصة، أو ذا مصلحة ثابتة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSL",
+            "article": 23
+          }
+        },
+        {
+          "type": "statement",
+          "name": "التحقق من شخصية طالب الصورة وتعبئة النموذج المعد لذلك",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 70
+          }
+        },
+        {
+          "type": "document",
+          "name": "لذي المصلحة الثابتة: إيضاح أسباب الطلب وإرفاق ما يثبتها",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 70
+          }
+        },
+        {
+          "type": "document",
+          "name": "للسلطة العامة: خطاب خاص بذلك",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 70
+          }
+        },
+        {
+          "type": "fee",
+          "name": "رسم قدره عشرون ريالًا لكل طلب، يُسدَّد عبر نظام سداد",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 69
+          }
+        }
+      ]
+    },
+    {
+      "name": "التبليغ عن المواليد",
+      "aliases": [
+        "تسجيل مولود",
+        "تسجيل ميلاد",
+        "التبليغ عن ولادة"
+      ],
+      "description": "التبليغ عن واقعة الولادة وتسجيلها لدى مكتب الأحوال المدنية.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSL",
+        "article": 34
+      },
+      "requirements": [
+        {
+          "type": "document",
+          "name": "تعبئة نموذج التبليغ عن المواليد",
+          "mandatory": true,
+          "source": {
+            "doc": "CSL",
+            "article": 34
+          }
+        },
+        {
+          "type": "condition",
+          "name": "أن يكون المبلّغ من المكلفين بالتبليغ، ومنهم أم المولود",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 83
+          }
+        },
+        {
+          "type": "deadline",
+          "name": "التبليغ خلال المهلة النظامية من تاريخ الولادة: يحددها النظام بخمسة عشر يومًا (وثلاثين يومًا إذا بعد مكان الولادة عن أقرب مكتب)، وتحدد اللائحة ثلاثين يومًا للولادة داخل المدن؛ تحتاج مراجعة لأن المادة 34 من النظام معدّلة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 87
+          }
+        }
+      ]
+    },
+    {
+      "name": "تسجيل واقعة ميلاد منزلية",
+      "aliases": [
+        "ولادة في المنزل",
+        "تسجيل مولود ولد في البيت"
+      ],
+      "description": "تسجيل ميلاد سعودي ولد داخل المملكة خارج المستشفى.",
+      "responsible_department": "مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 93
+      },
+      "requirements": [
+        {
+          "type": "document",
+          "name": "تعبئة النماذج الخاصة والتوقيع عليها من المبلّغ والشهود لدى الموظف المختص",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 93
+          }
+        },
+        {
+          "type": "document",
+          "name": "صورة من بطاقة تطعيم المولود إن وجدت",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 93
+          }
+        },
+        {
+          "type": "document",
+          "name": "تقرير طبي من المستشفى لتقدير سن المولود، ملصقة عليه صورته ومختوم بالخاتم الرسمي",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 93
+          }
+        },
+        {
+          "type": "statement",
+          "name": "مخاطبة الجوازات لمقارنة تاريخ دخول الأم مع تاريخ الولادة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 93
+          }
+        }
+      ]
+    },
+    {
+      "name": "تسجيل واقعة ميلاد سعودي حدثت خارج المملكة",
+      "aliases": [
+        "تسجيل مولود بالخارج",
+        "ميلاد خارج المملكة"
+      ],
+      "description": "تسجيل ميلاد سعودي في السجل المدني عند التقدم لإدارة أو مكتب الأحوال المدنية.",
+      "responsible_department": "إدارة أو مكتب الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 96
+      },
+      "requirements": [
+        {
+          "type": "document",
+          "name": "شهادة الميلاد الصادرة من الخارج مصدقة من الممثلية السعودية ووزارة الخارجية، مع ترجمة مصدقة إن كانت بغير العربية",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 96
+          }
+        },
+        {
+          "type": "condition",
+          "name": "التحقق من أن الأب يحمل الجنسية السعودية وقت الولادة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 96
+          }
+        },
+        {
+          "type": "document",
+          "name": "صور من وثائق الوالدين، وصورة الوثيقة التي قدم بموجبها المولود إلى المملكة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 96
+          }
+        }
+      ]
+    },
+    {
+      "name": "تسجيل حفيظة نفوس غير مسجلة في السجل المدني",
+      "aliases": [
+        "تسجيل الحفيظة",
+        "حفيظة غير مسجلة"
+      ],
+      "description": "تسجيل حفيظة نفوس لم تُسجل في السجل المدني.",
+      "responsible_department": "إدارة الأحوال المدنية",
+      "source": {
+        "doc": "CSR",
+        "article": 52
+      },
+      "requirements": [
+        {
+          "type": "document",
+          "name": "طلب التسجيل على النموذج المعد لذلك مع إرفاق أصل الحفيظة",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 52
+          }
+        },
+        {
+          "type": "statement",
+          "name": "إذا كانت الحفيظة مفقودة: إحضار كفيل حضوري وتوقيعه",
+          "mandatory": false,
+          "source": {
+            "doc": "CSR",
+            "article": 52
+          }
+        },
+        {
+          "type": "condition",
+          "name": "التأكد من نظامية إصدار الحفيظة ومطابقة صورة صاحبها مع الأساس",
+          "mandatory": true,
+          "source": {
+            "doc": "CSR",
+            "article": 52
+          }
+        }
+      ]
+    }
+  ]
+}

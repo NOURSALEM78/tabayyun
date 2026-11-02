@@ -8,6 +8,11 @@ PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parents[2]
 RAW_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "raw"
 PROCESSED_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "processed"
 EXPORT_PATH: Final[Path] = PROCESSED_DATA_DIR / "Tabayyun_KB.xlsx"
+SEED_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "seed"
+SEED_ISSUERS_FILE: Final[str] = "issuers.json"
+SEED_DOCUMENTS_FILE: Final[str] = "documents.json"
+SEED_RELATIONS_FILE: Final[str] = "relations.json"
+SEED_PROCEDURES_FILE: Final[str] = "procedures.json"
 
 OCR_DPI: Final[int] = 300
 OCR_LANGUAGE: Final[str] = "ara"
@@ -17,42 +22,28 @@ OCR_CONFIG: Final[str] = "--psm 6"
 OCR_INK_THRESHOLD: Final[int] = 128
 OCR_MIN_INK_FRACTION: Final[float] = 0.002
 OCR_MIN_TEXT_CHARACTERS: Final[int] = 50
-OCR_TEXT_SUFFIX: Final[str] = ".txt"
+# Text-layer PDFs are read with poppler's pdftotext, which rebuilds word spacing
+# from glyph positions (PyMuPDF glues Arabic words together for this file).
+PDFTOTEXT_COMMAND: Final[str] = "pdftotext"
+# Private-use glyphs that the nationality PDF uses for Arabic ligatures.
+TEXT_LAYER_GLYPH_FIXES: Final[tuple[tuple[str, str], ...]] = (
+    ("\ue004", "لمج"),
+    ("\ue005", "لمخ"),
+)
 TESSDATA_BEST_DIR: Final[Path] = PROJECT_ROOT / ".tessdata_best"
 TESSDATA_BEST_MODEL: Final[Path] = TESSDATA_BEST_DIR / "ara.traineddata"
 PAGE_BREAK_CHARACTER: Final[str] = "\f"
 PAGE_SEPARATOR: Final[str] = f"\n{PAGE_BREAK_CHARACTER}\n"
 TEXT_LAYER_SOURCE_FILENAMES: Final[tuple[str, ...]] = ("nationality_law_and_regulation.pdf",)
-NATIONALITY_TEXT_CODE: Final[str] = "NAT"
-NATIONALITY_REGULATION_CODE: Final[str] = "NATR"
-NATIONALITY_LAW_ARTICLE_MAX: Final[int] = 30
 REGULATION_BOUNDARY: Final[str] = "اللائحة التنفيذية لنظام الجنسية العربية السعودية"
 NATIONALITY_REGULATION_TITLE: Final[str] = REGULATION_BOUNDARY
 CLAUSE_NUMBER_START: Final[int] = 1
-REGULATION_DOCUMENT_ID: Final[int] = 2
-NATIONALITY_LAW_DOCUMENT_ID: Final[int] = 3
 MAX_HEADER_LINES: Final[int] = 6
 DEFAULT_EXPORT_STATUS: Final[str] = "active"
-DEFAULT_DOCUMENT_NUMBER: Final[str] = ""
-DEFAULT_SOURCE_URL: Final[str] = ""
-DEFAULT_RESPONSIBLE_DEPARTMENT: Final[str] = ""
-DEFAULT_ARTICLE_DATE: Final[str] = ""
-DECISION_CONTEXT_CHARACTERS: Final[int] = 140
-DECISION_NUMBER_PATTERN: Final[str] = (
-    r"(?:القرار الوزاري|قرار وزاري)\s*(?:رقم\s*)?[()\[\]{}]?\s*"
-    r"(?P<number>\d+(?:\s*/\s*(?:\d+|وز)){0,2})(?!\w|/|\s+\d)"
-)
 APPROVER_TEXT_STOP_CHARACTERS: Final[str] = "،؛.\n"
-PROCEDURE_MANDATORY_KEYWORDS: Final[tuple[str, ...]] = ("يجب", "يشترط", "يتعين")
 CONDITIONAL_PROHIBITION_KEYWORDS: Final[tuple[str, str]] = ("لا يجوز", "إلا")
-REQUIREMENT_STATEMENT_TYPE: Final[str] = "statement"
-DOCUMENT_CODE_CIVIL_REGULATION: Final[str] = "CSR"
-AMENDMENT_MARKER_WORD: Final[str] = "تعديلات"
-LEGACY_NATIONALITY_LAW_TITLE: Final[str] = "نظام الجنسية العربية السعودية"
-LEGACY_NATIONALITY_ARTICLE_NO: Final[int] = 28
 PUBLIC_CLASSIFICATION_LEVEL: Final[int] = 1
 ARTICLE_VERSION: Final[int] = 1
-DEFAULT_ISSUER_REFERRAL: Final[str] = ""
 MANUAL_REVIEW_NOTE: Final[str] = "Rule and procedure extraction requires manual review."
 
 
@@ -150,7 +141,9 @@ ORDINAL_HEADING_PATTERN: Final[str] = (
     r"(?m)^[ \t]*المادة[ \t]*/?[ \t]*(?P<ordinal>[\u0621-\u064Aـ]+"
     r"(?:[ \t]+(?:و)?[\u0621-\u064Aـ]+){0,3})[ \t]*$"
 )
-NUMBER_SUFFIX_PATTERN: Final[str] = r"(?m)[-–—]\s*(?P<number>\d{1,3})(?:\s*[-–—])?(?!\d)"
+# Nationality law (pdftotext): each article number is printed on its own line
+# ("-12") right after the FIRST line of that article.
+NUMBER_MARKER_LINE_PATTERN: Final[str] = r"^\s*[-–—]\s*(?P<number>\d{1,3})\s*[-–—]?\s*$"
 AMENDMENT_MARKER_PATTERN: Final[str] = r"\*+\s*(?P<marker>تعديلات\s+المادة\s+[^\n*]+|\(\s*\d+\s*\))"
 PUNCTUATION_PATTERN: Final[str] = r"[!\"#$%&'()*+,-./:;<=>?@\[\]\\^_`{|}~،؛؟«»ـ]"
 FORMATTING_CHARACTERS: Final[str] = "\u200e\u200f\u202a\u202b\u202c\u202d\u202e\ufeff"
@@ -217,18 +210,6 @@ ORDINAL_TENS: Final[tuple[str, ...]] = (
 )
 CLAUSE_LETTERS: Final[tuple[str, ...]] = ("أ", "ا", "ب", "ت", "ث", "ج", "جـ", "د", "هـ", "و")
 
-ISSUER_NAMES: Final[tuple[str, ...]] = (
-    "مجلس الوزراء",
-    "وزير الداخلية",
-    "وكالة وزارة الداخلية للأحوال المدنية",
-    "المديرية العامة للأحوال المدنية",
-    "إدارة الأحوال المدنية",
-    "اللجنة المحلية",
-    "اللجنة الفرعية",
-    "هيئة الأحوال المدنية المركزية",
-    "الإدارة العامة بالمنطقة",
-    "ديوان المظالم",
-)
 
 APPROVAL_PHRASES: Final[tuple[str, ...]] = (
     "بقرار من",
@@ -247,42 +228,12 @@ RULE_KEYWORDS: Final[dict[str, tuple[str, ...]]] = {
     "إجازة": ("يجوز", "له أن"),
 }
 
-PROCEDURE_START_PHRASES: Final[tuple[str, ...]] = (
-    "عند طلب",
-    "يجوز",
-    "يشترط",
-    "يتعين",
-    "تقدم طلب",
-    "يقدم طلب",
-)
-PROCEDURE_NAME_MAX_LENGTH: Final[int] = 140
-DOCUMENT_STATUS_ACTIVE: Final[str] = "active"
-DOCUMENT_STATUS_REPEALED: Final[str] = "repealed"
-ISSUER_TYPE_EXECUTIVE: Final[str] = "executive"
-ISSUER_TYPE_INTERNAL: Final[str] = "internal"
-RELATION_AMENDS: Final[str] = "amends"
-RELATION_REPEALS: Final[str] = "repeals"
-RELATION_REPLACES: Final[str] = "replaces"
-LEGACY_NATIONALITY_ARTICLE_NO: Final[int] = 28
+ARTICLE_STATUS_AMENDED: Final[str] = "amended"
+DEFAULT_RULE_TYPE: Final[str] = "إجرائي"
+# Checked before the "earliest keyword wins" rule in classify_rule_type.
+PRIORITY_RULE_TYPES: Final[tuple[str, ...]] = ("تعريف", "عقوبة", "منع مشروط")
 PROCEDURE_REVIEW_DRAFT: Final[str] = "draft"
-PROCEDURE_REQUIREMENT_TYPE_ORDER: Final[tuple[str, ...]] = (
-    "document",
-    "condition",
-    "deadline",
-    "fee",
-    "statement",
-)
-REQUIREMENT_KEYWORDS: Final[dict[str, tuple[str, ...]]] = {
-    "document": ("إرفاق", "مستند", "شهادة", "وثيقة", "صورة", "جواز"),
-    "deadline": ("خلال", "مدة", "يوم", "أيام", "شهر", "سنة", "أسبوع"),
-    "fee": ("رسم", "رسوم"),
-    "condition": ("إذا", "يشترط", "شرط", "على أن"),
-}
 
-REFERENCED_LEGAL_TITLES: Final[tuple[tuple[str, str], ...]] = (
-    ("نظام دائرة النفوس", "repealed"),
-    ("نظام المواليد والوفيات", "repealed"),
-)
 
 EXPORT_COLUMNS: Final[dict[str, tuple[str, ...]]] = {
     "issuers": ("issuer_id", "name", "issuer_type", "referral_text"),

@@ -92,11 +92,16 @@ def clean_document_pages(
     pages: list[str],
     header_markers: tuple[str, ...],
     preserve_markers: tuple[str, ...] = (REGULATION_BOUNDARY,),
+    join_lines: bool = True,
 ) -> str:
-    """Clean page headers, line wrapping, Arabic digits, and whitespace."""
+    """Clean page headers, line wrapping, Arabic digits, and whitespace.
+
+    ``join_lines=False`` keeps one output line per source line; the nationality
+    splitter needs this because article numbers are printed on their own lines.
+    """
     cleaned_pages = [
-        _join_wrapped_lines(_clean_page_lines(page, header_markers, preserve_markers))
-        for page in pages
+        (_join_wrapped_lines(lines) if join_lines else "\n".join(lines))
+        for lines in (_clean_page_lines(page, header_markers, preserve_markers) for page in pages)
     ]
     return PAGE_SEPARATOR.join(page for page in cleaned_pages if page).strip()
 

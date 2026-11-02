@@ -1,0 +1,59 @@
+{
+  "_note": "Authorities that issue documents or decide matters. referral_text is shown to an employee when the current rule was changed by a document they may not see (requirement 4). It must never mention that a restricted document exists.",
+  "issuers": [
+    {
+      "key": "council_of_ministers",
+      "name": "مجلس الوزراء",
+      "issuer_type": "legislative",
+      "referral_text": "للحصول على الحكم المعمول به في هذه المسألة، يُرجى الرجوع إلى الإدارة القانونية بوكالة وزارة الداخلية للأحوال المدنية."
+    },
+    {
+      "key": "royal_authority",
+      "name": "المقام السامي",
+      "issuer_type": "legislative",
+      "referral_text": "للحصول على الحكم المعمول به في هذه المسألة، يُرجى الرجوع إلى الإدارة القانونية بوكالة وزارة الداخلية للأحوال المدنية."
+    },
+    {
+      "key": "minister_of_interior",
+      "name": "وزير الداخلية",
+      "issuer_type": "executive",
+      "referral_text": "للحصول على الحكم المعمول به في هذه المسألة، يُرجى الرجوع إلى الإدارة القانونية بوكالة وزارة الداخلية للأحوال المدنية."
+    },
+    {
+      "key": "civil_affairs_agency",
+      "name": "وكالة وزارة الداخلية للأحوال المدنية",
+      "issuer_type": "executive",
+      "referral_text": "للحصول على الإجراء المعمول به، يُرجى الرجوع إلى وكالة وزارة الداخلية للأحوال المدنية."
+    },
+    {
+      "key": "civil_affairs_department",
+      "name": "إدارة الأحوال المدنية",
+      "issuer_type": "executive",
+      "referral_text": "للحصول على الإجراء المعمول به، يُرجى الرجوع إلى إدارة الأحوال المدنية المختصة."
+    },
+    {
+      "key": "local_committee",
+      "name": "اللجنة المحلية",
+      "issuer_type": "internal",
+      "referral_text": "هذه المسألة من اختصاص اللجنة المحلية للأحوال المدنية؛ يُرجى الرجوع إليها."
+    },
+    {
+      "key": "branch_committee",
+      "name": "اللجنة الفرعية",
+      "issuer_type": "internal",
+      "referral_text": "هذه المسألة من اختصاص اللجنة الفرعية للأحوال المدنية؛ يُرجى الرجوع إليها."
+    },
+    {
+      "key": "central_authority",
+      "name": "هيئة الأحوال المدنية المركزية",
+      "issuer_type": "internal",
+      "referral_text": "هذه المسألة من اختصاص هيئة الأحوال المدنية المركزية؛ يُرجى الرجوع إليها."
+    },
+    {
+      "key": "board_of_grievances",
+      "name": "ديوان المظالم",
+      "issuer_type": "executive",
+      "referral_text": "هذه المسألة من اختصاص ديوان المظالم؛ يُرجى الرجوع إليه."
+    }
+  ]
+}

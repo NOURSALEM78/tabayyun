@@ -22,7 +22,6 @@ from backend.ingestion.clean import (
 from backend.ingestion.constants import DOCUMENT_SPECS, PAGE_SEPARATOR, DocumentSpec
 from backend.ingestion.export import write_workbook
 from backend.ingestion.extract import (
-    DECISION_NUMBER_RE,
     ExtractionResult,
     approval_details,
     classify_rule_type,
@@ -143,15 +142,23 @@ def test_sequential_heading_numbers_ignore_ocr_digits_and_keep_pages() -> None:
     ]
 
 
-def test_split_nationality_law_trailing_numbers() -> None:
-    """Decode RTL trailing article numbers in the nationality law."""
-    source = "يسمى هذا النظام نظام الجنسية-١\nلا يجوز إلا بإذن-٢\n"
+def test_split_nationality_law_number_marker_lines() -> None:
+    """Article n starts at the line printed just before its "-n" marker line."""
+    source = (
+        "الذي قرر مجلس الوزراء الموافقة عليه\n"
+        "يسمى هذا النظام نظام الجنسية .\n-1\n"
+        "ليس لهذا النظام أثر رجعي وتعتبر\n-2\nالتي منحت استنادا إلى تلك النظم .\n"
+        "الألفاظ الآتية تؤدي المعاني الآتية :\n-3\nأ .السعودي هو ...\n"
+    )
 
     result = split_articles(source, DOCUMENT_SPECS[2])
 
-    assert [article.article_no for article in result.articles] == [1, 2]
-    assert result.articles[0].text.startswith("يسمى هذا النظام")
-    assert result.unassigned_text == ""
+    assert [article.article_no for article in result.articles] == [1, 2, 3]
+    assert result.articles[0].text == "يسمى هذا النظام نظام الجنسية ."
+    assert result.articles[1].text == (
+        "ليس لهذا النظام أثر رجعي وتعتبر التي منحت استنادا إلى تلك النظم ."
+    )
+    assert result.articles[2].text.startswith("الألفاظ الآتية")
 
 
 def test_split_combined_nationality_sections() -> None:
@@ -179,18 +186,14 @@ def test_rule_type_and_approval_details() -> None:
     """Classify common legal rules and extract their approving authority."""
     assert classify_rule_type("لا يجوز ذلك إلا بقرار من الوزير") == "منع مشروط"
     assert classify_rule_type("يعاقب بغرامة") == "عقوبة"
+    assert classify_rule_type("يجوز تغيير الاسم على أن يراعى كذا") == "إجازة"
+    assert classify_rule_type("يجب التبليغ، ويجوز التمديد") == "إلزام"
+    assert classify_rule_type("يسجل الطلب") == "إجرائي"
     assert approval_details("يجوز بقرار من وزير الداخلية، بعد تقديم الطلب") == (
         True,
         "وزير الداخلية",
     )
     assert approval_details("يسجل الطلب") == (False, None)
-
-
-def test_decision_number_regex_rejects_partial_ocr_tokens() -> None:
-    """Reject IDs that only partially match before OCR-confused Arabic letters."""
-    source = "القرار الوزاري رقم (960ا/ون)، والقرار الوزاري رقم (9)"
-
-    assert [match.group("number") for match in DECISION_NUMBER_RE.finditer(source)] == ["9"]
 
 
 def test_validation_reports_missing_and_duplicate_numbers() -> None:
@@ -375,3 +378,145 @@ def test_blank_page_check_accepts_normal_text_pages(tmp_path: Path) -> None:
         for y in range(0, 100, 10):
             page.putpixel((x, y), 0)
     assert not _is_blank(page)
+
+
+def test_text_layer_pages_use_pdftotext_and_fix_ligature_glyphs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Read text-layer pages with pdftotext and replace private-use ligature glyphs."""
+    import subprocess
+
+    calls: list[list[str]] = []
+
+    def fake_run(command: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 0, stdout="السلطات ا\ue005تصة", stderr="")
+
+    source_path = tmp_path / "source.pdf"
+    source_path.write_bytes(b"mock PDF")
+    monkeypatch.setattr("backend.ingestion.ocr.pymupdf.open", lambda _path: _FakeDocument())
+    monkeypatch.setattr("backend.ingestion.ocr.subprocess.run", fake_run)
+
+    pages = read_pdf_pages(source_path, tmp_path / "cache", text_layer=True)
+
+    assert pages == ["السلطات المختصة"]
+    assert calls[0][0] == "pdftotext"
+
+
+def test_clean_can_keep_source_lines() -> None:
+    """Keep one line per source line when joining is disabled."""
+    pages = ["نص أول\n-1\nتكملة"]
+
+    assert clean_document_pages(pages, (), join_lines=False) == "نص أول\n-1\nتكملة"
+
+
+def test_seed_rows_resolve_documents_relations_and_procedures(tmp_path: Path) -> None:
+    """Load seed JSON and resolve issuers, documents and articles to export IDs."""
+    import json
+
+    from backend.ingestion.seed_data import SeedDataError, load_seed_rows
+
+    def write(name: str, key: str, items: list[dict[str, object]]) -> None:
+        (tmp_path / name).write_text(json.dumps({key: items}, ensure_ascii=False), "utf-8")
+
+    write(
+        "issuers.json",
+        "issuers",
+        [
+            {
+                "key": "minister",
+                "name": "وزير الداخلية",
+                "issuer_type": "executive",
+                "referral_text": "يُرجى الرجوع إلى الإدارة القانونية.",
+            },
+        ],
+    )
+    write(
+        "documents.json",
+        "documents",
+        [
+            {
+                "code": spec.code,
+                "doc_type": spec.doc_type,
+                "title": spec.title,
+                "issuer": "minister",
+                "status": "active",
+            }
+            for spec in DOCUMENT_SPECS
+        ]
+        + [
+            {
+                "key": "OLD",
+                "doc_type": "regulation",
+                "title": "لائحة قديمة",
+                "issuer": "minister",
+                "doc_number": "95/وز",
+                "status": "repealed",
+            }
+        ],
+    )
+    write(
+        "relations.json",
+        "relations",
+        [
+            {
+                "source": "CSR",
+                "source_article": 2,
+                "target": "OLD",
+                "relation_type": "replaces",
+                "notes": "تحل محلها",
+            },
+        ],
+    )
+    write(
+        "procedures.json",
+        "procedures",
+        [
+            {
+                "name": "إجراء",
+                "source": {"doc": "CSR", "article": 2},
+                "requirements": [
+                    {
+                        "type": "document",
+                        "name": "مستند",
+                        "mandatory": True,
+                        "source": {"doc": "CSR", "article": 2},
+                    },
+                ],
+            },
+        ],
+    )
+    article_ids = {("CSR", 2): 7}
+
+    rows = load_seed_rows(article_ids, {}, datetime(2026, 1, 1, tzinfo=UTC), seed_dir=tmp_path)
+
+    old = next(row for row in rows.documents if row["title"] == "لائحة قديمة")
+    assert old["doc_id"] == max(spec.doc_id for spec in DOCUMENT_SPECS) + 1
+    assert old["status"] == "repealed"
+    assert rows.relations[0]["source_article_id"] == 7
+    assert rows.relations[0]["target_doc_id"] == old["doc_id"]
+    assert rows.requirements[0]["source_article_id"] == 7
+    assert rows.issuers[0]["referral_text"]
+
+    with pytest.raises(SeedDataError):
+        load_seed_rows({}, {}, datetime(2026, 1, 1, tzinfo=UTC), seed_dir=tmp_path)
+
+
+def test_project_seed_files_load_against_all_article_numbers() -> None:
+    """The real data/seed files refer only to documents and articles that exist."""
+    from backend.ingestion.seed_data import load_seed_rows
+
+    expected = {spec.code: spec.expected_articles for spec in DOCUMENT_SPECS}
+    article_ids = {
+        (code, number): index
+        for index, (code, number) in enumerate(
+            ((code, number) for code, count in expected.items() for number in range(1, count + 1)),
+            start=1,
+        )
+    }
+
+    rows = load_seed_rows(article_ids, {}, datetime(2026, 1, 1, tzinfo=UTC))
+
+    assert all(issuer["referral_text"] for issuer in rows.issuers)
+    assert {row["relation_type"] for row in rows.relations} <= {"repeals", "amends", "replaces"}
+    assert rows.procedures and rows.requirements

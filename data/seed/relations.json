@@ -1,0 +1,51 @@
+{
+  "_note": "Repeal / amendment / replacement relations between documents, entered by hand with their evidence. source = the newer document; target = the affected document. 'source_article' / 'target_article' are article numbers inside a source document (optional).",
+  "relations": [
+    {
+      "source": "CSR",
+      "source_article": 198,
+      "target": "CSR_1408",
+      "relation_type": "replaces",
+      "notes": "تحل هذه اللائحة محل اللائحة التنفيذية الصادرة بالقرار الوزاري رقم (95/وز) وتاريخ 1408/3/4هـ (المادة 198 وغلاف اللائحة)."
+    },
+    {
+      "source": "DEC_18651_1439",
+      "target": "CSR",
+      "relation_type": "amends",
+      "notes": "عُدّلت بعض مواد اللائحة بهذا القرار (غلاف اللائحة). المواد المعدّلة غير محددة في الملف."
+    },
+    {
+      "source": "DEC_9_1441",
+      "target": "CSR",
+      "relation_type": "amends",
+      "notes": "عُدّلت بعض مواد اللائحة بهذا القرار (غلاف اللائحة). المواد المعدّلة غير محددة في الملف."
+    },
+    {
+      "source": "DEC_15588_1443",
+      "target": "CSR",
+      "relation_type": "amends",
+      "notes": "عُدّلت بعض مواد اللائحة بهذا القرار (غلاف اللائحة). المواد المعدّلة غير محددة في الملف."
+    },
+    {
+      "source": "CSL",
+      "source_article": 95,
+      "target": "NUFUS_1358",
+      "relation_type": "repeals",
+      "notes": "يلغي نظام الأحوال المدنية نظام دائرة النفوس الصادر بالأمر السامي رقم 8172 وتاريخ 1358/7/15هـ (المادة 95)."
+    },
+    {
+      "source": "CSL",
+      "source_article": 95,
+      "target": "BIRTHS_DEATHS_1382",
+      "relation_type": "repeals",
+      "notes": "يلغي نظام الأحوال المدنية نظام المواليد والوفيات الصادر بالمرسوم الملكي رقم 2 وتاريخ 1382/1/11هـ (المادة 95)."
+    },
+    {
+      "source": "NAT",
+      "source_article": 28,
+      "target": "NAT_1357",
+      "relation_type": "repeals",
+      "notes": "يلغي هذا النظام نظام الجنسية العربية السعودية الصادر عام 1357هـ وما سبقه من نظم التابعية (المادة 28)."
+    }
+  ]
+}

@@ -18,7 +18,7 @@ from backend.ingestion.constants import (
     CLAUSE_NUMBER_START,
     FORMATTING_CHARACTERS,
     NATIONALITY_REGULATION_TITLE,
-    NUMBER_SUFFIX_PATTERN,
+    NUMBER_MARKER_LINE_PATTERN,
     NUMERIC_HEADING_PATTERN,
     ORDINAL_COMPOUND_ONES,
     ORDINAL_HEADING_PATTERN,
@@ -53,7 +53,7 @@ COMPACT_ORDINAL_MAP = {
 }
 ORDINAL_HEADING_RE = re.compile(ORDINAL_HEADING_PATTERN)
 NUMERIC_HEADING_RE = re.compile(NUMERIC_HEADING_PATTERN)
-NUMBER_SUFFIX_RE = re.compile(NUMBER_SUFFIX_PATTERN)
+NUMBER_MARKER_LINE_RE = re.compile(NUMBER_MARKER_LINE_PATTERN)
 CLAUSE_MARKER_RE = re.compile(
     rf"(?<!\w)(?P<letter>{'|'.join(re.escape(letter) for letter in CLAUSE_LETTERS)})"
     r"\s*(?:ـ\s*)?[-–—]\s*|(?<!\w)(?P<number>\d+)\s*[-–—]\s*"
@@ -214,44 +214,50 @@ def _article_texts_by_heading(text: str, spec: DocumentSpec) -> list[ArticleReco
     return records
 
 
-def _articles_by_trailing_numbers(text: str, spec: DocumentSpec) -> SplitResult:
-    """Split nationality-law articles whose numbers follow their text."""
-    matches = list(NUMBER_SUFFIX_RE.finditer(text))
-    anchor_index = _find_compact_text(text, spec.first_article_anchor)
-    if not spec.first_article_anchor:
-        anchor_index = 0
-    if anchor_index < 0:
-        logger.warning("Article anchor %r not found in %s", spec.first_article_anchor, spec.code)
-        anchor_index = 0
+def _articles_by_number_marker_lines(text: str, spec: DocumentSpec) -> SplitResult:
+    """Split the nationality law, whose number line follows each article's first line.
 
-    cursor = anchor_index
+    pdftotext prints "-12" on its own line after the first text line of article
+    12, so article n starts at the line just before marker n and ends at the
+    line before the first line of article n + 1.
+    """
+    lines = [line for line in text.splitlines() if line.strip()]
+    anchor = next(
+        (index for index, line in enumerate(lines) if spec.first_article_anchor in line), 0
+    )
+    markers = [
+        (index, int(match.group("number")))
+        for index, line in enumerate(lines)
+        if index > anchor and (match := NUMBER_MARKER_LINE_RE.match(line))
+    ]
+    starts = [index - 1 for index, _number in markers]
     records: list[ArticleRecord] = []
-    markers: list[AmendmentMarker] = []
-    for match in matches:
-        article_no = int(match.group("number")[::-1])
-        article_text, found_markers = remove_amendment_markers(
-            collapse_whitespace(text[cursor : match.start()]), article_no
+    found_markers: list[AmendmentMarker] = []
+    for position, (marker_index, number) in enumerate(markers):
+        end = starts[position + 1] if position + 1 < len(markers) else len(lines)
+        body = [lines[starts[position]], *lines[marker_index + 1 : end]]
+        article_text, article_markers = remove_amendment_markers(
+            collapse_whitespace(" ".join(body).replace(PAGE_BREAK_CHARACTER, " ")), number
         )
+        found_markers.extend(article_markers)
         records.append(
             ArticleRecord(
                 doc_id=spec.doc_id,
                 document_code=spec.code,
-                article_no=article_no,
-                article_label=f"{ARTICLE_PREFIX} {article_no}",
+                article_no=number,
+                article_label=f"{ARTICLE_PREFIX} {number}",
                 text=article_text,
-                ocr_article_no=match.group("number"),
-                page_no=text.count(PAGE_BREAK_CHARACTER, 0, match.start()) + 1,
+                ocr_article_no=str(number),
+                page_no="\n".join(lines[:marker_index]).count(PAGE_BREAK_CHARACTER) + 1,
             )
         )
-        markers.extend(found_markers)
-        cursor = match.end()
-    return SplitResult(tuple(records), tuple(markers), collapse_whitespace(text[cursor:]))
+    return SplitResult(tuple(records), tuple(found_markers), "")
 
 
 def split_articles(text: str, spec: DocumentSpec) -> SplitResult:
     """Split one cleaned source into numbered articles and amendment records."""
     if spec.article_style == "number_suffix":
-        return _articles_by_trailing_numbers(text, spec)
+        return _articles_by_number_marker_lines(text, spec)
 
     records = _article_texts_by_heading(text, spec)
     markers: list[AmendmentMarker] = []

@@ -1,6 +1,7 @@
 """Read source PDF pages, caching OCR or extracted text for repeatable runs."""
 
 import logging
+import subprocess
 import unicodedata
 from pathlib import Path
 
@@ -21,8 +22,10 @@ from backend.ingestion.constants import (
     OCR_LANGUAGE,
     OCR_MIN_INK_FRACTION,
     OCR_MIN_TEXT_CHARACTERS,
+    PDFTOTEXT_COMMAND,
     TESSDATA_BEST_DIR,
     TESSDATA_BEST_MODEL,
+    TEXT_LAYER_GLYPH_FIXES,
 )
 
 logger = logging.getLogger(__name__)
@@ -71,12 +74,13 @@ def _read_or_extract_page(
 
     try:
         if text_layer:
-            page_text = unicodedata.normalize("NFKC", page.get_text("text", sort=False))
+            page_text = _extract_text_layer_page(pdf_path, page_number)
         else:
             page_text = _render_and_ocr_page(pdf_path, page_number)
     except (
         OSError,
         RuntimeError,
+        subprocess.CalledProcessError,
         PDFInfoNotInstalledError,
         PDFPageCountError,
         PDFSyntaxError,
@@ -91,6 +95,31 @@ def _read_or_extract_page(
     if not page_text.strip():
         logger.error("No text extracted from %s page %d", pdf_path.name, page_number)
     return page_text
+
+
+def _extract_text_layer_page(pdf_path: Path, page_number: int) -> str:
+    """Read one page's embedded text with pdftotext and normalize Arabic glyphs."""
+    result = subprocess.run(
+        [
+            PDFTOTEXT_COMMAND,
+            "-f",
+            str(page_number),
+            "-l",
+            str(page_number),
+            "-enc",
+            "UTF-8",
+            str(pdf_path),
+            "-",
+        ],
+        capture_output=True,
+        check=True,
+        text=True,
+        encoding="utf-8",
+    )
+    text = unicodedata.normalize("NFKC", result.stdout)
+    for glyph, replacement in TEXT_LAYER_GLYPH_FIXES:
+        text = text.replace(glyph, replacement)
+    return text
 
 
 def _render_and_ocr_page(pdf_path: Path, page_number: int) -> str:

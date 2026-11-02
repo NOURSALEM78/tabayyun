@@ -1,0 +1,115 @@
+{
+  "_note": "Document metadata entered by hand from the source files, because OCR misreads decision numbers and dates. 'code' links a source document to DOCUMENT_SPECS; 'key' identifies a document that is only referenced. 'evidence' says where each fact was read.",
+  "documents": [
+    {
+      "code": "CSL",
+      "doc_type": "law",
+      "title": "نظام الأحوال المدنية",
+      "issuer": "council_of_ministers",
+      "doc_number": null,
+      "issue_date_hijri": null,
+      "status": "active",
+      "evidence": "civil_status_law.pdf (نسخة الإدارة القانونية)"
+    },
+    {
+      "code": "CSR",
+      "doc_type": "regulation",
+      "title": "اللائحة التنفيذية لنظام الأحوال المدنية",
+      "issuer": "minister_of_interior",
+      "doc_number": "39/27910",
+      "issue_date_hijri": "1432/6/5",
+      "status": "active",
+      "evidence": "civil_status_regulation.pdf، صفحة الغلاف"
+    },
+    {
+      "code": "NAT",
+      "doc_type": "law",
+      "title": "نظام الجنسية العربية السعودية",
+      "issuer": "council_of_ministers",
+      "doc_number": "8/20/5604",
+      "issue_date_hijri": "1374/2/22",
+      "status": "active",
+      "evidence": "اللائحة التنفيذية لنظام الجنسية، المادة الأولى؛ وقرار مجلس الوزراء رقم 4 وتاريخ 1374/1/25هـ في مقدمة النظام"
+    },
+    {
+      "code": "NATR",
+      "doc_type": "regulation",
+      "title": "اللائحة التنفيذية لنظام الجنسية العربية السعودية",
+      "issuer": "minister_of_interior",
+      "doc_number": null,
+      "issue_date_hijri": null,
+      "status": "active",
+      "evidence": "nationality_law_and_regulation.pdf"
+    },
+    {
+      "key": "CSR_1408",
+      "doc_type": "regulation",
+      "title": "اللائحة التنفيذية لنظام الأحوال المدنية (الصادرة عام 1408هـ)",
+      "issuer": "minister_of_interior",
+      "doc_number": "95/وز",
+      "issue_date_hijri": "1408/3/4",
+      "status": "repealed",
+      "evidence": "غلاف اللائحة التنفيذية الحالية، والمادة 198 منها"
+    },
+    {
+      "key": "DEC_18651_1439",
+      "doc_type": "decision",
+      "title": "القرار الوزاري بتعديل بعض مواد اللائحة التنفيذية لنظام الأحوال المدنية",
+      "issuer": "minister_of_interior",
+      "doc_number": "18651/وز/1",
+      "issue_date_hijri": "1439/2/17",
+      "status": "active",
+      "evidence": "غلاف اللائحة التنفيذية"
+    },
+    {
+      "key": "DEC_9_1441",
+      "doc_type": "decision",
+      "title": "القرار الوزاري بتعديل بعض مواد اللائحة التنفيذية لنظام الأحوال المدنية",
+      "issuer": "minister_of_interior",
+      "doc_number": "9",
+      "issue_date_hijri": "1441/9/6",
+      "status": "active",
+      "evidence": "غلاف اللائحة التنفيذية"
+    },
+    {
+      "key": "DEC_15588_1443",
+      "doc_type": "decision",
+      "title": "القرار الوزاري بتعديل بعض مواد اللائحة التنفيذية لنظام الأحوال المدنية",
+      "issuer": "minister_of_interior",
+      "doc_number": "15588",
+      "issue_date_hijri": "1443/10/15",
+      "status": "active",
+      "evidence": "غلاف اللائحة التنفيذية"
+    },
+    {
+      "key": "NUFUS_1358",
+      "doc_type": "law",
+      "title": "نظام دائرة النفوس",
+      "issuer": "royal_authority",
+      "doc_number": "8172",
+      "issue_date_hijri": "1358/7/15",
+      "status": "repealed",
+      "evidence": "نظام الأحوال المدنية، المادة 95"
+    },
+    {
+      "key": "BIRTHS_DEATHS_1382",
+      "doc_type": "law",
+      "title": "نظام المواليد والوفيات",
+      "issuer": "royal_authority",
+      "doc_number": "2",
+      "issue_date_hijri": "1382/1/11",
+      "status": "repealed",
+      "evidence": "نظام الأحوال المدنية، المادة 95"
+    },
+    {
+      "key": "NAT_1357",
+      "doc_type": "law",
+      "title": "نظام الجنسية العربية السعودية (الصادر عام 1357هـ)",
+      "issuer": "royal_authority",
+      "doc_number": null,
+      "issue_date_hijri": "1357/10/13",
+      "status": "repealed",
+      "evidence": "نظام الجنسية العربية السعودية، المادة 28 (رقم الإدارة الملكية غير مقروء في الملف)"
+    }
+  ]
+}
