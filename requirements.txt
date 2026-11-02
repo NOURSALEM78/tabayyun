@@ -4,6 +4,7 @@ sqlalchemy>=2
 psycopg[binary]
 pgvector
 python-dotenv
+pydantic-settings
 pandas
 openpyxl
 pymupdf

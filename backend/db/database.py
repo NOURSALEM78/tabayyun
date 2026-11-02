@@ -1,19 +1,16 @@
 """Configure the PostgreSQL engine and initialize database metadata."""
 
 import logging
-import os
 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from backend.db.config import DEFAULT_DATABASE_URL
+from backend.settings import settings
 
-load_dotenv()
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL)
-engine = create_engine(DATABASE_URL)
+DATABASE_URL: str = settings.database_url
+engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
