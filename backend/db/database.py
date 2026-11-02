@@ -18,13 +18,15 @@ class Base(DeclarativeBase):
     """Base class from which all database models inherit."""
 
 
-def init_db() -> None:
-    """Create the pgvector extension and all tables registered on Base."""
+def init_db(reset: bool = False) -> None:
+    """Create registered tables, optionally dropping the schema first."""
     from backend.db.models import Base as ModelBase
 
     with engine.begin() as connection:
         connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-    ModelBase.metadata.create_all(bind=engine)
+        if reset:
+            ModelBase.metadata.drop_all(bind=connection)
+        ModelBase.metadata.create_all(bind=connection)
     logger.info("Database schema initialized")
 
 
