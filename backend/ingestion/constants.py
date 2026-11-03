@@ -8,11 +8,13 @@ PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parents[2]
 RAW_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "raw"
 PROCESSED_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "processed"
 EXPORT_PATH: Final[Path] = PROCESSED_DATA_DIR / "Tabayyun_KB.xlsx"
+REVIEW_EXPORT_PATH: Final[Path] = PROCESSED_DATA_DIR / "Tabayyun_OCR_Review.xlsx"
 SEED_DATA_DIR: Final[Path] = PROJECT_ROOT / "data" / "seed"
 # Page text cache. It is committed to git so every team member works on exactly the
 # same OCR text, which the reviewed text corrections are written against.
 PAGE_TEXT_CACHE_DIR: Final[Path] = PROJECT_ROOT / "data" / "ocr"
 SEED_CORRECTIONS_FILE: Final[str] = "text_corrections.json"
+SEED_REVIEWED_FILE: Final[str] = "reviewed_articles.json"
 SEED_REFERENCE_FILE: Final[str] = "reference_data.json"
 SEED_RESOURCES_FILE: Final[str] = "resources.json"
 SEED_ISSUERS_FILE: Final[str] = "issuers.json"
@@ -385,3 +387,43 @@ EXPORT_COLUMNS: Final[dict[str, tuple[str, ...]]] = {
     ),
     "amendment_markers": ("article_no", "marker_text"),
 }
+
+# OCR review workbook (review_export.py writes it, review_import.py reads it back).
+# Columns are found by header text, so the team may reorder or resize them freely.
+REVIEW_SHEET_GUIDE: Final[str] = "طريقة المراجعة"
+REVIEW_SHEET_PENDING: Final[str] = "لم تُراجع"
+REVIEW_SHEET_REVIEWED: Final[str] = "رُوجعت"
+REVIEW_SHEET_CORRECTIONS: Final[str] = "التصحيحات"
+REVIEW_COL_DOCUMENT: Final[str] = "النظام"
+REVIEW_COL_CODE: Final[str] = "الرمز"
+REVIEW_COL_ARTICLE: Final[str] = "رقم المادة"
+REVIEW_COL_FILE: Final[str] = "الملف"
+REVIEW_COL_PAGE: Final[str] = "صفحة الـ PDF"
+REVIEW_COL_TEXT: Final[str] = "نص المادة الحالي"
+REVIEW_COL_APPLIED: Final[str] = "عدد التصحيحات المطبّقة"
+REVIEW_COL_STATUS: Final[str] = "نتيجة المراجعة"
+REVIEW_COL_NOTES: Final[str] = "ملاحظات"
+REVIEW_COL_FIND: Final[str] = "النص الخطأ"
+REVIEW_COL_REPLACE: Final[str] = "الصواب"
+REVIEW_STATUS_CLEAN: Final[str] = "سليمة"
+REVIEW_STATUS_ERRORS: Final[str] = "فيها أخطاء"
+REVIEW_STATUSES: Final[tuple[str, ...]] = (REVIEW_STATUS_CLEAN, REVIEW_STATUS_ERRORS)
+REVIEW_GUIDE_LINES: Final[tuple[str, ...]] = (
+    "طريقة المراجعة",
+    "1. افتحي ملف الـ PDF على رقم الصفحة المكتوب، وقارني نص المادة كلمة بكلمة.",
+    "2. اختاري في عمود «نتيجة المراجعة»: سليمة، أو فيها أخطاء.",
+    "3. لكل خطأ أضيفي سطرًا في ورقة «التصحيحات»: الرمز، ورقم المادة، والنص الخطأ، والصواب.",
+    "4. انسخي النص الخطأ من عمود «نص المادة الحالي» كما هو، مع كلمتين حوله ليكون فريدًا.",
+    (
+        '   مثال: الرمز CSR، المادة 1، النص الخطأ «وكيل وزارة الداخلية للا"حوال»،'
+        " الصواب «وكيل وزارة الداخلية للأحوال»."
+    ),
+    "5. ركّزي على الأرقام (المدد والمبالغ وأرقام المواد) قبل الهمزات والمسافات.",
+    "6. بعد الانتهاء شغّلي: python -m backend.ingestion.review_import <مسار الملف>",
+    "",
+    "ملاحظات",
+    "• «لم تُراجع»: المواد التي لا تصحيح عليها ولم تُعلَّم سليمة بعد.",
+    "• «رُوجعت»: بقية المواد، بنصها بعد تطبيق التصحيحات السابقة، للمرور السريع.",
+    "• رقم الصفحة لبداية المادة، وقد تكمل المادة في الصفحة التالية.",
+    "• الأعمدة الصفراء هي التي تُعبّأ.",
+)

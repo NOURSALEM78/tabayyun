@@ -78,3 +78,18 @@ def apply_text_corrections(
             applied += 1
     logger.info("Applied %d of %d text corrections", applied, len(corrections))
     return tuple(by_key[(article.document_code, article.article_no)] for article in articles)
+
+
+def append_text_corrections(
+    new_corrections: list[TextCorrection],
+    path: Path = SEED_DATA_DIR / SEED_CORRECTIONS_FILE,
+) -> None:
+    """Append corrections at the end of the file, keeping its note and existing order."""
+    with path.open(encoding="utf-8") as handle:
+        payload = json.load(handle)
+    payload["corrections"].extend(
+        {"doc": item.doc, "article": item.article, "find": item.find, "replace": item.replace}
+        for item in new_corrections
+    )
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    logger.info("Appended %d text corrections to %s", len(new_corrections), path)

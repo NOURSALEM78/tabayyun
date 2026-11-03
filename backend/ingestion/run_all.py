@@ -142,6 +142,13 @@ def _log_results(summary: PipelineSummary) -> None:
     logger.info("Workbook: %s", summary.workbook_path)
 
 
+def load_corrected_articles() -> tuple[ArticleRecord, ...]:
+    """Read, clean and split every source, then apply the reviewed text corrections."""
+    source_pages, _ = _read_sources()
+    articles, _, _ = _split_documents(_clean_sources(source_pages))
+    return apply_text_corrections(articles)
+
+
 def run_pipeline() -> PipelineSummary:
     """Run all ingestion stages, export results, and return a count summary."""
     source_pages, source_hashes = _read_sources()

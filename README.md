@@ -36,4 +36,21 @@ Output: `data/processed/Tabayyun_KB.xlsx` (one sheet per table, plus `validation
   - `relations.json`: which document repeals, replaces or amends which, with evidence.
   - `procedures.json`: procedures and their requirements with source articles (`review_status: draft` until approved).
   - `text_corrections.json`: reviewed OCR fixes, one exact replacement inside one article. A correction whose text is not found is logged as skipped.
+  - `reviewed_articles.json`: articles checked against the scanned PDFs. An article with a text correction also counts as reviewed.
 - Do not open the PDFs in the VS Code text editor: saving them there corrupts the file.
+
+## OCR text review
+
+```
+python -m backend.ingestion.review_export
+```
+
+Writes `data/processed/Tabayyun_OCR_Review.xlsx` from the current text: a sheet of articles still to review, a sheet of reviewed ones, and an empty corrections sheet. Fill the yellow columns (review status, and one corrections row per mistake with the wrong text copied exactly from the article), then:
+
+```
+python -m backend.ingestion.review_import data/processed/Tabayyun_OCR_Review.xlsx
+python -m backend.ingestion.run_all
+python -m backend.db.seed
+```
+
+The import checks every correction against the current article text first. If any row has a problem, it lists all problems and saves nothing. Rows already imported are skipped, so running it twice is safe.
