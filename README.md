@@ -25,21 +25,33 @@ pytest
 python -m backend.ingestion.run_all
 ```
 
-The page text of every PDF is cached in `data/ocr/` and committed, so everyone works on the same OCR text and no OCR runs on a normal checkout. Delete a folder there only when that PDF or the OCR settings change (the text corrections then need re-checking).
-
 Output: `data/processed/Tabayyun_KB.xlsx` (one sheet per table, plus `validation`).
 
-- **Articles and chunks** are extracted from `data/raw/*.pdf`. Scanned PDFs are read with Tesseract (Arabic); the nationality PDF is read with `pdftotext`.
+- **Articles** come from reviewed article tables in `data/raw/` (no OCR):
+  - `civil_status_law_articles.xlsx` (CSL, 96 articles)
+  - `civil_status_regulation_articles.xlsx` (CSR, 199 articles)
+  - `nationality_law_and_regulation_articles.xlsx` (NAT, 30 articles, and NATR, 35 articles;
+    each row's `الرمز` says which document it belongs to)
+
+  Each table has one row per article with the columns `الرمز`, `رقم المادة`, `نص المادة الحالي`
+  (and optionally `صفحة الـ PDF`). To fix an article, edit its text in the table and re-run the
+  pipeline. Ingestion stops and lists every invalid row (unknown code, non-numeric or duplicated
+  article number, empty text); missing or extra article numbers show in the `validation` sheet.
+  A document gets its table through `table_filename` in `backend/ingestion/constants.py`.
+  The PDFs stay in `data/raw/` as the original sources.
+- **Chunks** are the clauses of each article (markers like `أ -`, `1 -`, `أ.` or `1.`).
 - **Reviewed reference data** lives in `data/seed/` and is edited by hand, because OCR cannot read it reliably:
   - `issuers.json`: authorities and the referral text shown when a rule was changed by a document the user may not see.
   - `documents.json`: decision numbers, dates and status of every document (source and referenced).
   - `relations.json`: which document repeals, replaces or amends which, with evidence.
   - `procedures.json`: procedures and their requirements with source articles (`review_status: draft` until approved).
-  - `text_corrections.json`: reviewed OCR fixes, one exact replacement inside one article. A correction whose text is not found is logged as skipped.
-  - `reviewed_articles.json`: articles checked against the scanned PDFs. An article with a text correction also counts as reviewed.
+  - `text_corrections.json`: reviewed OCR fixes for documents still read from PDFs, one exact replacement inside one article. A correction whose text is not found is logged as skipped.
+  - `reviewed_articles.json`: OCR'd articles checked against the PDFs. An article with a text correction also counts as reviewed.
 - Do not open the PDFs in the VS Code text editor: saving them there corrupts the file.
 
 ## OCR text review
+
+Only for documents still read from PDFs (documents with an article table are edited in the table).
 
 ```
 python -m backend.ingestion.review_export

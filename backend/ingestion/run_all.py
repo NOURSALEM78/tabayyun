@@ -1,4 +1,9 @@
-"""Run the complete source-only document ingestion and export pipeline."""
+"""Run the complete source-only document ingestion and export pipeline.
+
+Documents with a reviewed article table in data/raw/ are read from that table;
+the others are still read from their PDFs (cached OCR or text layer), cleaned,
+split into articles and corrected with data/seed/text_corrections.json.
+"""
 
 from __future__ import annotations
 
@@ -8,13 +13,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from backend.ingestion.article_tables import read_article_table, table_hash
 from backend.ingestion.clean import AmendmentMarker, clean_document_pages
 from backend.ingestion.constants import (
     DOCUMENT_SPECS,
     EXPORT_PATH,
+    OCR_DOCUMENT_SPECS,
+    OCR_SOURCE_FILENAMES,
     PAGE_TEXT_CACHE_DIR,
     RAW_DATA_DIR,
-    SOURCE_FILENAMES,
+    TABLE_DOCUMENT_SPECS,
     TEXT_LAYER_SOURCE_FILENAMES,
 )
 from backend.ingestion.corrections import apply_text_corrections
@@ -43,11 +51,11 @@ class PipelineSummary:
 
 
 def _read_sources() -> tuple[dict[str, list[str]], dict[str, str]]:
-    """Read each supplied PDF once using page caches and compute source hashes."""
+    """Read each PDF still needed for OCR once, using page caches, and hash it."""
     source_pages: dict[str, list[str]] = {}
     source_hashes: dict[str, str] = {}
 
-    for filename in SOURCE_FILENAMES:
+    for filename in OCR_SOURCE_FILENAMES:
         pdf_path = RAW_DATA_DIR / filename
         if not pdf_path.is_file():
             raise FileNotFoundError(f"Required source PDF is missing: {pdf_path}")
@@ -84,6 +92,8 @@ def _clean_sources(source_pages: dict[str, list[str]]) -> dict[str, str]:
         for filename, pages in source_pages.items()
     }
     nationality_filename = TEXT_LAYER_SOURCE_FILENAMES[0]
+    if nationality_filename not in cleaned_sources:
+        return cleaned_sources
     nationality_law, nationality_regulation = split_nationality_sections(
         cleaned_sources[nationality_filename]
     )
@@ -102,7 +112,7 @@ def _split_documents(
     amendment_markers: list[AmendmentMarker] = []
     article_counts: dict[str, int] = {}
 
-    for spec in DOCUMENT_SPECS:
+    for spec in OCR_DOCUMENT_SPECS:
         source_text = cleaned_sources.get(spec.code, "")
         if spec.code not in cleaned_sources:
             source_text = cleaned_sources[spec.source_filename]
@@ -138,28 +148,64 @@ def _log_results(summary: PipelineSummary) -> None:
         len(summary.extraction.document_relations),
         len(summary.extraction.procedures),
     )
+    logger.info("Documents read from article tables: %s", [s.code for s in TABLE_DOCUMENT_SPECS])
     logger.info("OCR/text page cache counts: %s", summary.cache_counts)
     logger.info("Workbook: %s", summary.workbook_path)
 
 
 def load_corrected_articles() -> tuple[ArticleRecord, ...]:
-    """Read, clean and split every source, then apply the reviewed text corrections."""
+    """Return the OCR'd articles with the reviewed text corrections applied.
+
+    Only documents without an article table are included: they are the ones the
+    OCR review workbook (review_export / review_import) still covers.
+    """
     source_pages, _ = _read_sources()
     articles, _, _ = _split_documents(_clean_sources(source_pages))
     return apply_text_corrections(articles)
 
 
+def _read_table_documents() -> tuple[tuple[ArticleRecord, ...], dict[str, str], dict[str, int]]:
+    """Read every document that has an article table; return articles, hashes and counts."""
+    articles: list[ArticleRecord] = []
+    hashes: dict[str, str] = {}
+    counts: dict[str, int] = {}
+    for spec in TABLE_DOCUMENT_SPECS:
+        document_articles = read_article_table(spec)
+        articles.extend(document_articles)
+        # documents.content_hash is looked up by source filename (see seed_data.py).
+        hashes[spec.source_filename] = table_hash(spec)
+        counts[spec.code] = len(document_articles)
+    return tuple(articles), hashes, counts
+
+
+def _in_document_order(articles: tuple[ArticleRecord, ...]) -> tuple[ArticleRecord, ...]:
+    """Order articles by document (as listed in DOCUMENT_SPECS), then by article number."""
+    position = {spec.code: index for index, spec in enumerate(DOCUMENT_SPECS)}
+    return tuple(
+        sorted(articles, key=lambda item: (position[item.document_code], item.article_no))
+    )
+
+
 def run_pipeline() -> PipelineSummary:
     """Run all ingestion stages, export results, and return a count summary."""
+    table_articles, table_hashes, table_counts = _read_table_documents()
     source_pages, source_hashes = _read_sources()
     cleaned_sources = _clean_sources(source_pages)
-    articles, amendment_markers, article_counts = _split_documents(cleaned_sources)
-    articles = apply_text_corrections(articles)
+    ocr_articles, amendment_markers, ocr_counts = _split_documents(cleaned_sources)
+    articles = _in_document_order(table_articles + apply_text_corrections(ocr_articles))
+    source_hashes = {**source_hashes, **table_hashes}
+    article_counts = {
+        spec.code: {**table_counts, **ocr_counts}[spec.code] for spec in DOCUMENT_SPECS
+    }
     validation_rows = tuple(
         validate_articles(
             spec,
             tuple(article for article in articles if article.document_code == spec.code),
-            page_count=len(source_pages[spec.source_filename]),
+            page_count=(
+                len(source_pages[spec.source_filename])
+                if spec.source_filename in source_pages
+                else None
+            ),
         )
         for spec in DOCUMENT_SPECS
     )

@@ -71,6 +71,9 @@ class DocumentSpec:
     header_markers: tuple[str, ...]
     first_article_anchor: str = ""
     sequential_headings: bool = False
+    # Reviewed article table in data/raw/ (one row per article). When set, the
+    # document is read from this table and its PDF is not OCR'd.
+    table_filename: str = ""
 
 
 DOCUMENT_SPECS: Final[tuple[DocumentSpec, ...]] = (
@@ -84,6 +87,7 @@ DOCUMENT_SPECS: Final[tuple[DocumentSpec, ...]] = (
         expected_articles=96,
         header_markers=("نظام الأحوال المدنية",),
         sequential_headings=True,
+        table_filename="civil_status_law_articles.xlsx",
     ),
     DocumentSpec(
         doc_id=2,
@@ -95,6 +99,7 @@ DOCUMENT_SPECS: Final[tuple[DocumentSpec, ...]] = (
         expected_articles=199,
         header_markers=("اللائحة التنفيذية لنظام الأحوال المدنية",),
         sequential_headings=True,
+        table_filename="civil_status_regulation_articles.xlsx",
     ),
     DocumentSpec(
         doc_id=3,
@@ -106,6 +111,7 @@ DOCUMENT_SPECS: Final[tuple[DocumentSpec, ...]] = (
         expected_articles=30,
         header_markers=("نظام الجنسية العربية السعودية",),
         first_article_anchor="يسمى هذا النظام",
+        table_filename="nationality_law_and_regulation_articles.xlsx",
     ),
     DocumentSpec(
         doc_id=4,
@@ -116,11 +122,19 @@ DOCUMENT_SPECS: Final[tuple[DocumentSpec, ...]] = (
         article_style="ordinal",
         expected_articles=35,
         header_markers=("اللائحة التنفيذية لنظام الجنسية العربية السعودية",),
+        table_filename="nationality_law_and_regulation_articles.xlsx",
     ),
 )
 
-SOURCE_FILENAMES: Final[tuple[str, ...]] = tuple(
-    dict.fromkeys(spec.source_filename for spec in DOCUMENT_SPECS)
+TABLE_DOCUMENT_SPECS: Final[tuple[DocumentSpec, ...]] = tuple(
+    spec for spec in DOCUMENT_SPECS if spec.table_filename
+)
+OCR_DOCUMENT_SPECS: Final[tuple[DocumentSpec, ...]] = tuple(
+    spec for spec in DOCUMENT_SPECS if not spec.table_filename
+)
+# PDFs that are still read page by page (OCR or text layer).
+OCR_SOURCE_FILENAMES: Final[tuple[str, ...]] = tuple(
+    dict.fromkeys(spec.source_filename for spec in OCR_DOCUMENT_SPECS)
 )
 
 HEADER_LINE: Final[str] = "الإدارة القانونية"
@@ -403,6 +417,12 @@ REVIEW_COL_TEXT: Final[str] = "نص المادة الحالي"
 REVIEW_COL_APPLIED: Final[str] = "عدد التصحيحات المطبّقة"
 REVIEW_COL_STATUS: Final[str] = "نتيجة المراجعة"
 REVIEW_COL_NOTES: Final[str] = "ملاحظات"
+# Columns of the reviewed article tables in data/raw/ (the same headings as the review sheets).
+ARTICLE_TABLE_REQUIRED_COLUMNS: Final[tuple[str, ...]] = (
+    REVIEW_COL_CODE,
+    REVIEW_COL_ARTICLE,
+    REVIEW_COL_TEXT,
+)
 REVIEW_COL_FIND: Final[str] = "النص الخطأ"
 REVIEW_COL_REPLACE: Final[str] = "الصواب"
 REVIEW_STATUS_CLEAN: Final[str] = "سليمة"

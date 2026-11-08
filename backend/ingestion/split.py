@@ -54,9 +54,15 @@ COMPACT_ORDINAL_MAP = {
 ORDINAL_HEADING_RE = re.compile(ORDINAL_HEADING_PATTERN)
 NUMERIC_HEADING_RE = re.compile(NUMERIC_HEADING_PATTERN)
 NUMBER_MARKER_LINE_RE = re.compile(NUMBER_MARKER_LINE_PATTERN)
+_CLAUSE_LETTER_PATTERN = "|".join(re.escape(letter) for letter in CLAUSE_LETTERS)
+# Clause markers: "أ -", "1 -" (dash style) or "أ.", "1." followed by a space (dot style,
+# used in the nationality regulation). A dotted number must be one or two digits and not
+# follow "/" or "(", so dates such as 1374/2/22 and references such as (16). are not split.
 CLAUSE_MARKER_RE = re.compile(
-    rf"(?<!\w)(?P<letter>{'|'.join(re.escape(letter) for letter in CLAUSE_LETTERS)})"
-    r"\s*(?:ـ\s*)?[-–—]\s*|(?<!\w)(?P<number>\d+)\s*[-–—]\s*"
+    rf"(?<!\w)(?P<letter>{_CLAUSE_LETTER_PATTERN})\s*(?:ـ\s*)?[-–—]\s*"
+    r"|(?<!\w)(?P<number>\d+)\s*[-–—]\s*"
+    rf"|(?<!\w)(?:{_CLAUSE_LETTER_PATTERN})\.\s+"
+    r"|(?<![\w/(])\d{1,2}\.\s+"
 )
 
 

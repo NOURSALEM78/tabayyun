@@ -600,13 +600,14 @@ def test_text_corrections_apply_once_and_skip_missing_or_ambiguous(
 
 
 def test_project_text_corrections_file_is_valid() -> None:
-    """The committed corrections file loads and every entry has non-empty text."""
+    """The committed corrections file loads; entries target only OCR'd documents."""
+    from backend.ingestion.constants import OCR_DOCUMENT_SPECS
     from backend.ingestion.corrections import load_text_corrections
 
     corrections = load_text_corrections()
+    ocr_codes = {spec.code for spec in OCR_DOCUMENT_SPECS}
 
-    assert corrections
-    assert all(c.find and c.doc in {"CSL", "CSR", "NAT", "NATR"} for c in corrections)
+    assert all(c.find and c.doc in ocr_codes for c in corrections)
 
 
 @pytest.mark.parametrize(
@@ -637,3 +638,21 @@ def test_amendment_markers_accept_ocr_star_variants() -> None:
         text, found = remove_amendment_markers(f"نص المادة. {marker}", 2)
         assert text == "نص المادة."
         assert found[0]["marker_text"].startswith("تعديلات المادة")
+
+
+def test_split_clauses_accepts_dot_markers_but_not_dates_or_references() -> None:
+    """"أ." and "1." start clauses; dates (1374/2/22) and "(16)." references do not."""
+    text = (
+        "يمنح بقرار وفق الآتي: أ. الصادر برقم 5604/20/8 وتاريخ 1374/2/22. ب. حسب المادة (16). "
+        "1. أن يكون مقيما. 2. أن يجيد العربية."
+    )
+
+    clauses = [clause.text for clause in split_clauses(text)]
+
+    assert clauses == [
+        "يمنح بقرار وفق الآتي:",
+        "الصادر برقم 5604/20/8 وتاريخ 1374/2/22.",
+        "حسب المادة (16).",
+        "أن يكون مقيما.",
+        "أن يجيد العربية.",
+    ]
