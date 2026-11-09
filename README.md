@@ -78,3 +78,30 @@ python -m backend.retrieval.embed
 Encodes every chunk that has no embedding yet with `BAAI/bge-m3` (1024 dimensions, normalised for cosine search) and stores it in `chunks.embedding` (pgvector). The first run downloads the model (about 2 GB). The CPU build of PyTorch avoids a large GPU download.
 
 Re-running is cheap: only chunks without an embedding are encoded. When `python -m backend.db.seed` updates a chunk whose text changed, it clears that chunk's embedding, so the next `embed` run refreshes exactly those chunks. Use `--all` to re-encode everything (e.g. after changing the model).
+
+## Retrieval (search)
+
+```
+python -m backend.retrieval.search "كم مدة التبليغ عن المواليد داخل المدن؟" --employee E001
+```
+
+For one question and one employee:
+
+1. **Visibility:** documents at or below the employee's access level; a document with an access list (`document_access`) is visible only to the roles on it.
+2. **Rules in force:** only current chunks of active documents and articles.
+3. **Hybrid search:** by meaning (BGE-M3 + pgvector, cosine) and by keywords (BM25 on normalised text), fused with reciprocal rank fusion.
+4. **Changed rules:** if an article (or its whole document) was amended, repealed, replaced or excepted by a document the employee may not see, its old text is dropped and the issuer's referral text is returned instead; the hidden document is never named. If the employee may see the newer document, the article is kept with a note naming it.
+
+### Test circular (secret amendment)
+
+To try requirement 4, load one fictional circular. It is marked as a test in its number (`تجريبي-1`), title and text, and no column is added for it:
+
+```
+python -m backend.retrieval.demo
+python -m backend.retrieval.embed
+python -m backend.retrieval.search "كم مدة التبليغ عن المواليد داخل المدن؟" --employee E001
+python -m backend.retrieval.search "كم مدة التبليغ عن المواليد داخل المدن؟" --employee E009
+python -m backend.retrieval.demo --remove
+```
+
+The circular (`data/demo/secret_circular.json`) is classified secret, visible only to roles R4 and R5, and amends regulation article 87. E001 (registrar) gets a referral instead of article 87; E009 (department director) gets article 87 with a note and the circular itself. Remove it when testing is done.

@@ -1,0 +1,95 @@
+"""Tests for rank fusion, the override (secret amendment) rule and keyword search."""
+
+from __future__ import annotations
+
+from backend.retrieval.keyword import KeywordIndex, tokenize
+from backend.retrieval.rules import apply_overrides, fuse_rankings
+from backend.retrieval.types import Candidate, Override
+
+
+def candidate(chunk_id: str, doc_id: int = 2, article_id: int = 87) -> Candidate:
+    return Candidate(chunk_id, "نص", doc_id, "اللائحة", article_id, article_id, "المادة", 1)
+
+
+def override(source: int, article: int | None = 87, title: str = "تعميم") -> Override:
+    return Override(source, title, 2, article, "amends", "الوكالة", "يُرجى الرجوع إلى الوكالة.")
+
+
+def test_fusion_rewards_chunks_found_by_both_methods() -> None:
+    a, b, c = candidate("A"), candidate("B"), candidate("C")
+    fused = fuse_rankings([[a, b], [c, b]])
+
+    assert fused[0].chunk_id == "B"
+    assert {item.chunk_id for item in fused} == {"A", "B", "C"}
+    assert fused[0].score > fused[1].score
+
+
+def test_hidden_amendment_drops_old_rule_and_refers_without_naming_the_document() -> None:
+    result = apply_overrides(
+        [candidate("A87"), candidate("A88", article_id=88)],
+        [override(12)],
+        visible_doc_ids={2},
+        limit=5,
+    )
+
+    assert [chunk.chunk_id for chunk in result.chunks] == ["A88"]
+    assert len(result.referrals) == 1
+    assert result.referrals[0].issuer_name == "الوكالة"
+    assert "تعميم" not in result.referrals[0].referral_text
+    assert result.response_type == "answer"
+
+
+def test_visible_amendment_keeps_rule_and_notes_the_newer_document() -> None:
+    result = apply_overrides(
+        [candidate("A87")], [override(12, title="تعميم المواليد")], visible_doc_ids={2, 12}, limit=5
+    )
+
+    assert [chunk.chunk_id for chunk in result.chunks] == ["A87"]
+    assert result.referrals == []
+    assert result.changed_by == {"A87": ["تعميم المواليد"]}
+
+
+def test_public_whole_document_amendment_adds_no_note() -> None:
+    result = apply_overrides(
+        [candidate("A1", article_id=1)],
+        [override(6, article=None)],
+        visible_doc_ids={2, 6},
+        limit=5,
+    )
+
+    assert result.changed_by == {}
+
+
+def test_document_level_hidden_change_covers_every_article() -> None:
+    result = apply_overrides(
+        [candidate("A1", article_id=1)], [override(12, article=None)], visible_doc_ids={2}, limit=5
+    )
+
+    assert result.chunks == []
+    assert result.response_type == "referral"
+
+
+def test_only_well_ranked_chunks_produce_referrals() -> None:
+    ranked = [candidate("A1", article_id=1), candidate("A87")]
+    result = apply_overrides(ranked, [override(12)], visible_doc_ids={2}, limit=1)
+
+    assert [chunk.chunk_id for chunk in result.chunks] == ["A1"]
+    assert result.referrals == []
+
+
+def test_nothing_found_is_insufficient() -> None:
+    assert apply_overrides([], [], set(), 5).response_type == "insufficient"
+
+
+def test_keyword_search_normalises_and_respects_allowed_ids() -> None:
+    index = KeywordIndex(
+        [
+            ("C1", " ".join(tokenize("مدة التبليغ عن المواليد"))),
+            ("C2", " ".join(tokenize("تجديد الهوية الوطنية"))),
+            ("C3", " ".join(tokenize("قيد واقعة الزواج"))),
+        ]
+    )
+
+    assert index.search("التبليغ عن المواليد", {"C1", "C2"}, 5) == ["C1"]
+    assert index.search("التبليغ عن المواليد", {"C2"}, 5) == []
+    assert index.search("", {"C1"}, 5) == []

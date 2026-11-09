@@ -7,3 +7,13 @@ EMBEDDING_MODEL_NAME: Final[str] = "BAAI/bge-m3"
 EMBEDDING_BATCH_SIZE: Final[int] = 16
 # Chunks are clauses, so 512 tokens covers them and keeps CPU encoding fast.
 EMBEDDING_MAX_TOKENS: Final[int] = 512
+
+# Hybrid search: candidates from each method, fused with reciprocal rank fusion (RRF).
+VECTOR_CANDIDATES: Final[int] = 30
+KEYWORD_CANDIDATES: Final[int] = 30
+RRF_K: Final[int] = 60
+RESULTS_LIMIT: Final[int] = 5
+
+# Relations that make an article's public text no longer the rule in force.
+OVERRIDING_RELATIONS: Final[tuple[str, ...]] = ("amends", "repeals", "replaces", "excepts")
+ACTIVE_DOCUMENT_STATUSES: Final[tuple[str, ...]] = ("active", "amended")
