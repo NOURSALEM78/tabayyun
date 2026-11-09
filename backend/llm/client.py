@@ -31,15 +31,23 @@ class ChatModel(Protocol):
 class OpenAICompatibleModel:
     """A model served at ``{base_url}/chat/completions``."""
 
-    def __init__(self, base_url: str, model: str, api_key: str = "", timeout: float = 300):
+    def __init__(
+        self,
+        base_url: str,
+        model: str,
+        api_key: str = "",
+        timeout: float = 300,
+        reasoning_effort: str = "",
+    ) -> None:
         self._url = base_url.rstrip("/") + "/chat/completions"
         self._model = model
         self._api_key = api_key
         self._timeout = timeout
+        self._reasoning_effort = reasoning_effort
 
     def complete(self, system: str, user: str) -> str:
         """Send one request and return the reply text without any thinking section."""
-        body = {
+        body: dict[str, object] = {
             "model": self._model,
             "temperature": LLM_TEMPERATURE,
             "messages": [
@@ -47,6 +55,8 @@ class OpenAICompatibleModel:
                 {"role": "user", "content": user},
             ],
         }
+        if self._reasoning_effort:
+            body["reasoning_effort"] = self._reasoning_effort
         headers = {"Content-Type": "application/json"}
         if self._api_key:
             headers["Authorization"] = f"Bearer {self._api_key}"
@@ -56,8 +66,15 @@ class OpenAICompatibleModel:
         try:
             with urllib.request.urlopen(request, timeout=self._timeout) as response:
                 reply = json.loads(response.read().decode("utf-8"))
-        except (urllib.error.URLError, TimeoutError) as error:
-            raise LLMError(f"Cannot reach the model at {self._url}: {error}") from error
+        except urllib.error.HTTPError as error:
+            detail = error.read().decode("utf-8", errors="replace")
+            raise LLMError(f"The model server returned {error.code}: {detail}") from error
+        except TimeoutError as error:
+            raise LLMError(
+                f"The model did not answer within {self._timeout:.0f}s ({self._model})"
+            ) from error
+        except urllib.error.URLError as error:
+            raise LLMError(f"Cannot reach the model at {self._url}: {error.reason}") from error
         try:
             text = reply["choices"][0]["message"]["content"] or ""
         except (KeyError, IndexError, TypeError) as error:

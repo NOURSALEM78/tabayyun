@@ -94,3 +94,47 @@ def test_model_saying_not_found_lists_no_sources() -> None:
 
 def test_thinking_section_is_removed() -> None:
     assert _THINKING.sub("", "<think>أفكر\nهنا</think>الجواب").strip() == "الجواب"
+
+
+def test_client_sends_reasoning_effort_and_reports_server_errors() -> None:
+    import json
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    import pytest
+
+    from backend.llm.client import LLMError, OpenAICompatibleModel
+
+    bodies: list[dict[str, object]] = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self) -> None:
+            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            bodies.append(body)
+            if body["model"] == "missing":
+                self.send_response(404)
+                payload = b'{"error":"model not found"}'
+            else:
+                self.send_response(200)
+                payload = json.dumps(
+                    {"choices": [{"message": {"content": "<think>x</think>الجواب [1]."}}]}
+                ).encode()
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def log_message(self, *args: object) -> None:
+            return
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{server.server_port}/v1"
+    try:
+        reply = OpenAICompatibleModel(url, "m", reasoning_effort="none").complete("s", "u")
+        assert reply == "الجواب [1]."
+        assert bodies[0]["reasoning_effort"] == "none"
+        OpenAICompatibleModel(url, "m").complete("s", "u")
+        assert "reasoning_effort" not in bodies[1]
+        with pytest.raises(LLMError, match="model not found"):
+            OpenAICompatibleModel(url, "missing").complete("s", "u")
+    finally:
+        server.shutdown()

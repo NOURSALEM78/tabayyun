@@ -113,20 +113,27 @@ The answer step works with any server that offers the OpenAI-compatible chat API
 
 ```
 LLM_BASE_URL=http://localhost:11434/v1
-LLM_MODEL=qwen3.5:0.8b
+LLM_MODEL=tabayyun-qwen
 LLM_API_KEY=
+LLM_REASONING_EFFORT=none
 ```
 
+`LLM_REASONING_EFFORT=none` turns off the thinking step of models such as Qwen: on CPU a short reply took about 4 s instead of 30 s. Leave it empty for a provider that rejects the field.
+
 ### Run a model in the Codespace with Ollama
+
+Use a 4-core Codespace (16 GB): with 8 GB, the search model (BGE-M3), the language model and VS Code together run out of memory.
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 OLLAMA_CONTEXT_LENGTH=8192 ollama serve > /tmp/ollama.log 2>&1 &
 ollama pull qwen3.5:0.8b
+printf 'FROM qwen3.5:0.8b\nPARAMETER num_ctx 8192\nPARAMETER num_batch 256\n' > /tmp/Modelfile
+ollama create tabayyun-qwen -f /tmp/Modelfile
 python -m backend.llm.ask "كم مدة التبليغ عن المواليد؟" --employee E001
 ```
 
-`ollama serve` must be started again after the Codespace restarts (the downloaded model is kept). The larger context length leaves room for five whole articles. If a model name is not found, check its exact tag in the Ollama library. To use a model running elsewhere (e.g. Ollama on Google Colab behind a tunnel), set `LLM_BASE_URL` to that address.
+`tabayyun-qwen` is the same model with room for five whole articles (`num_ctx`) and a smaller batch, which needs less memory. `ollama serve` must be started again after the Codespace restarts (models are kept); an «Exit 1» from it only means it is already running. `python -m backend.llm.ask` frees the search model before calling the language model. If a model name is not found, check its exact tag in the Ollama library. To use a model running elsewhere (e.g. Ollama on Google Colab behind a tunnel), set `LLM_BASE_URL` to that address.
 
 ### What the model writes and what code writes
 

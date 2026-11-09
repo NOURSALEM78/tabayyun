@@ -7,11 +7,13 @@ LLM_BASE_URL and LLM_MODEL in .env (see README, «Answers (language model)»).
 from __future__ import annotations
 
 import argparse
+import gc
 import logging
+import sys
 import time
 
 from backend.llm.answer import compose_answer, render
-from backend.llm.client import OpenAICompatibleModel
+from backend.llm.client import LLMError, OpenAICompatibleModel
 from backend.retrieval.constants import RESULTS_LIMIT
 from backend.retrieval.embed import SentenceTransformerEncoder
 from backend.retrieval.search import Retriever
@@ -30,13 +32,24 @@ def main() -> None:
     arguments = parser.parse_args()
 
     model = OpenAICompatibleModel(
-        settings.llm_base_url, settings.llm_model, settings.llm_api_key, settings.llm_timeout
+        settings.llm_base_url,
+        settings.llm_model,
+        settings.llm_api_key,
+        settings.llm_timeout,
+        settings.llm_reasoning_effort,
     )
-    result = Retriever(SentenceTransformerEncoder()).retrieve(
-        arguments.question, arguments.employee, arguments.limit
-    )
+    retriever = Retriever(SentenceTransformerEncoder())
+    result = retriever.retrieve(arguments.question, arguments.employee, arguments.limit)
+    # Free the search model before the language model loads: both share the machine's memory.
+    del retriever
+    gc.collect()
+
     started = time.monotonic()
-    answer = compose_answer(arguments.question, result, model)
+    try:
+        answer = compose_answer(arguments.question, result, model)
+    except LLMError as error:
+        logger.error("%s", error)
+        sys.exit(1)
     if answer.model_called:
         logger.info("%s answered in %.0fs", settings.llm_model, time.monotonic() - started)
     print("\n" + render(answer))
