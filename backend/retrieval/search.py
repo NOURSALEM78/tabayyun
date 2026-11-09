@@ -4,8 +4,10 @@ Steps for one question:
 1. Find which documents the requester may see (classification level and access list).
 2. Search those documents by meaning (BGE-M3 + pgvector) and by keywords (BM25).
 3. Fuse both rankings (reciprocal rank fusion).
-4. Drop chunks whose rule was changed by a document the requester may not see,
-   and return a referral to the competent authority instead.
+4. Keep each article once (its best-ranked chunk) and return the whole article.
+5. Drop articles changed by a document the requester may not see, and return a
+   referral to the competent authority instead; mark articles amended by a text the
+   system does not hold with a notice and the referral.
 
 Try it with ``python -m backend.retrieval.search "السؤال" --employee E001``.
 """
@@ -85,13 +87,14 @@ def _print(result: RetrievalResult) -> None:
     for referral in result.referrals:
         print(f"[إحالة] {referral.referral_text}")
     for number, chunk in enumerate(result.chunks, start=1):
-        print(f"\n{number}. {chunk.doc_title} - {chunk.article_label} (بند {chunk.clause_no})")
+        print(f"\n{number}. {chunk.doc_title} - {chunk.article_label} (أقرب بند: {chunk.clause_no})")
+        text = chunk.article_text or chunk.text
         notice = result.amended_notices.get(chunk.chunk_id)
         if notice:
             print(f"   {notice}")
-            print(f"   نص المادة كما ورد: «{chunk.text}»")
+            print(f"   نص المادة كما ورد: «{text}»")
         else:
-            print(f"   {chunk.text[:300]}")
+            print(f"   {text}")
         for title in result.changed_by.get(chunk.chunk_id, []):
             print(f"   ⚠ عُدّل حكم هذه المادة بموجب: {title}")
     if not result.chunks and not result.referrals:

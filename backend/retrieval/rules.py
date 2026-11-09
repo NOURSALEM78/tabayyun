@@ -73,15 +73,21 @@ def apply_overrides(
       in ``changed_by`` (its own text is searchable too). Whole-document amendments
       that are public are already part of the published text, so they add no note.
 
-    Candidates are read in rank order and reading stops once ``limit`` chunks are
-    kept, so only overrides on well-ranked chunks produce referrals.
+    Each article is kept once, through its best-ranked chunk (the whole article is
+    shown, so a second clause of it adds nothing). Candidates are read in rank order
+    and reading stops once ``limit`` articles are kept, so only overrides on
+    well-ranked chunks produce referrals.
     """
     result = RetrievalResult()
     referrals: dict[str, list[int]] = {}
     texts: dict[str, str] = {}
+    seen_articles: set[int] = set()
     for candidate in candidates:
         if len(result.chunks) >= limit:
             break
+        if candidate.article_id in seen_articles:
+            continue
+        seen_articles.add(candidate.article_id)
         applying = [override for override in overrides if _applies_to(override, candidate)]
         secret = [override for override in applying if _is_secret(override, visible_doc_ids)]
         if secret:

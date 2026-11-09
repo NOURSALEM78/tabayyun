@@ -122,6 +122,19 @@ def test_unheld_whole_document_amendment_does_not_hide_every_article() -> None:
     assert result.amended_notices == {}
 
 
+def test_each_article_is_kept_once_and_limit_counts_articles() -> None:
+    """A second clause of an article already kept is skipped and does not use up the limit."""
+    ranked = [
+        candidate("A87-1"),
+        candidate("A87-2"),
+        candidate("A88-1", article_id=88),
+        candidate("A89-1", article_id=89),
+    ]
+    result = apply_overrides(ranked, [], visible_doc_ids={2}, limit=2)
+
+    assert [chunk.chunk_id for chunk in result.chunks] == ["A87-1", "A88-1"]
+
+
 def test_nothing_found_is_insufficient() -> None:
     assert apply_overrides([], [], set(), 5).response_type == "insufficient"
 

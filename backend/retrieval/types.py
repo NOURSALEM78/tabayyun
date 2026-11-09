@@ -16,7 +16,12 @@ class Requester:
 
 @dataclass(frozen=True, slots=True)
 class Candidate:
-    """A chunk found by search, with the source details needed for citation."""
+    """A chunk found by search, with its whole article and the details needed for citation.
+
+    ``text`` is the matched clause; ``article_text`` is the full article it belongs to,
+    which is what is shown and given to the answer step (a clause alone can be just an
+    intro such as «المكلفون بالتبليغ عن المواليد هم:»).
+    """
 
     chunk_id: str
     text: str
@@ -27,6 +32,7 @@ class Candidate:
     article_label: str
     clause_no: int
     score: float = 0.0
+    article_text: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,7 +65,8 @@ class Referral:
 
 @dataclass(slots=True)
 class RetrievalResult:
-    """Chunks the requester may read, plus referrals for rules changed out of their sight."""
+    """Articles the requester may read (one best-ranked chunk each), plus referrals for
+    rules changed out of their sight."""
 
     chunks: list[Candidate] = field(default_factory=list)
     referrals: list[Referral] = field(default_factory=list)

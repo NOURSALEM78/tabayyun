@@ -61,6 +61,7 @@ def _candidate_query():
             Article.article_no,
             Article.article_label,
             Chunk.clause_no,
+            Article.text.label("article_text"),
         )
         .join(Article, Article.article_id == Chunk.article_id)
         .join(Document, Document.doc_id == Chunk.doc_id)
@@ -82,6 +83,7 @@ def _to_candidate(row) -> Candidate:
         row.article_no,
         row.article_label,
         row.clause_no,
+        article_text=row.article_text,
     )
 
 

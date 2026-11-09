@@ -90,7 +90,8 @@ For one question and one employee:
 1. **Visibility:** documents at or below the employee's access level; a document with an access list (`document_access`) is visible only to the roles on it.
 2. **Rules in force:** only current chunks of active documents and articles.
 3. **Hybrid search:** by meaning (BGE-M3 + pgvector, cosine) and by keywords (BM25 on normalised text), fused with reciprocal rank fusion.
-4. **Changed rules:** if an article (or its whole document) was amended, repealed, replaced or excepted by a document the employee may not see, its old text is dropped and the issuer's referral text is returned instead; the hidden document is never named. If the employee may see the newer document, the article is kept with a note naming it.
+4. **Whole articles:** search runs on chunks (clauses), but each result is the whole article of a matched chunk, and each article appears once (through its best-ranked chunk). A clause alone can be just an intro such as «المكلفون بالتبليغ عن المواليد هم:». The result limit counts articles.
+5. **Changed rules:** if an article (or its whole document) was amended, repealed, replaced or excepted by a document the employee may not see, its old text is dropped and the issuer's referral text is returned instead; the hidden document is never named. If the employee may see the newer document, the article is kept with a note naming it.
 
 ### Amended law articles
 
