@@ -106,3 +106,30 @@ python -m backend.retrieval.search "كم مدة التبليغ عن الموال
 ```
 
 A secret circular is different: an article changed by a document the employee may not see is dropped and only the referral is returned, without the article or the circular's name.
+
+## Answers (language model)
+
+The answer step works with any server that offers the OpenAI-compatible chat API (Ollama, vLLM, LM Studio, hosted providers). The model is chosen in `.env` only:
+
+```
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_MODEL=qwen3.5:0.8b
+LLM_API_KEY=
+```
+
+### Run a model in the Codespace with Ollama
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+OLLAMA_CONTEXT_LENGTH=8192 ollama serve > /tmp/ollama.log 2>&1 &
+ollama pull qwen3.5:0.8b
+python -m backend.llm.ask "كم مدة التبليغ عن المواليد؟" --employee E001
+```
+
+`ollama serve` must be started again after the Codespace restarts (the downloaded model is kept). The larger context length leaves room for five whole articles. If a model name is not found, check its exact tag in the Ollama library. To use a model running elsewhere (e.g. Ollama on Google Colab behind a tunnel), set `LLM_BASE_URL` to that address.
+
+### What the model writes and what code writes
+
+- The model receives only the retrieved articles that are in force and not marked as amended, numbered [1], [2], …, and is told to answer from them only, cite the number after each statement, ignore unrelated articles, and reply with a fixed «not found» sentence otherwise (`backend/llm/prompts.py`).
+- Code adds the exact parts: each amended article with its notice, quoted word for word from the database, and the referral; referrals for secret changes; and the source list. Citations to numbers that were not given are removed.
+- The model is not called when there is nothing to answer from (no results, referrals only, or amended articles only).

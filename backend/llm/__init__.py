@@ -1,1 +1,1 @@
-"""Language model integration package."""
+"""Language model integration: composes answers from retrieved articles."""
