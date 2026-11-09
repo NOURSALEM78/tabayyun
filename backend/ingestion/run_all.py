@@ -181,9 +181,7 @@ def _read_table_documents() -> tuple[tuple[ArticleRecord, ...], dict[str, str], 
 def _in_document_order(articles: tuple[ArticleRecord, ...]) -> tuple[ArticleRecord, ...]:
     """Order articles by document (as listed in DOCUMENT_SPECS), then by article number."""
     position = {spec.code: index for index, spec in enumerate(DOCUMENT_SPECS)}
-    return tuple(
-        sorted(articles, key=lambda item: (position[item.document_code], item.article_no))
-    )
+    return tuple(sorted(articles, key=lambda item: (position[item.document_code], item.article_no)))
 
 
 def run_pipeline() -> PipelineSummary:

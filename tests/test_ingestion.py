@@ -641,7 +641,7 @@ def test_amendment_markers_accept_ocr_star_variants() -> None:
 
 
 def test_split_clauses_accepts_dot_markers_but_not_dates_or_references() -> None:
-    """"أ." and "1." start clauses; dates (1374/2/22) and "(16)." references do not."""
+    """ "أ." and "1." start clauses; dates (1374/2/22) and "(16)." references do not."""
     text = (
         "يمنح بقرار وفق الآتي: أ. الصادر برقم 5604/20/8 وتاريخ 1374/2/22. ب. حسب المادة (16). "
         "1. أن يكون مقيما. 2. أن يجيد العربية."

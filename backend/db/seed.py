@@ -15,8 +15,10 @@ from sqlalchemy import (
     DateTime,
     Integer,
     String,
+    case,
     func,
     insert,
+    null,
     or_,
     select,
     update,
@@ -106,6 +108,17 @@ def convert_excel_value(value: Any, column: Column[Any]) -> Any:
     return value
 
 
+def _embedding_if_text_unchanged(table: Any, statement: Any) -> Any:
+    """Keep a chunk's embedding only while its text is unchanged; otherwise clear it.
+
+    A cleared embedding is recomputed by ``python -m backend.retrieval.embed``.
+    """
+    return case(
+        (table.c.text.is_distinct_from(statement.excluded.text), null()),
+        else_=table.c.embedding,
+    )
+
+
 def _sheet_rows(connection: Connection, sheet: Any, model: Any) -> int:
     """Upsert a sheet's rows and report the sheet and Excel row on failure."""
     table = model.__table__
@@ -148,6 +161,8 @@ def _sheet_rows(connection: Connection, sheet: Any, model: Any) -> int:
                 for column in table.columns
                 if column.name != primary_key.name and column.name in row
             }
+            if table.name == "chunks":
+                update_values["embedding"] = _embedding_if_text_unchanged(table, statement)
             statement = statement.on_conflict_do_update(
                 index_elements=[primary_key], set_=update_values
             )
