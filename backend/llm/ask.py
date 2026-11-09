@@ -52,6 +52,8 @@ def main() -> None:
         sys.exit(1)
     if answer.model_called:
         logger.info("%s answered in %.0fs", settings.llm_model, time.monotonic() - started)
+    if answer.rejected_reason:
+        logger.warning("Model answer not shown: %s", answer.rejected_reason)
     print("\n" + render(answer))
 
 

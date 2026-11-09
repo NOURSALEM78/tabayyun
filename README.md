@@ -140,3 +140,28 @@ python -m backend.llm.ask "كم مدة التبليغ عن المواليد؟" -
 - The model receives only the retrieved articles that are in force and not marked as amended, numbered [1], [2], …, and is told to answer from them only, cite the number after each statement, ignore unrelated articles, and reply with a fixed «not found» sentence otherwise (`backend/llm/prompts.py`).
 - Code adds the exact parts: each amended article with its notice, quoted word for word from the database, and the referral; referrals for secret changes; and the source list. Citations to numbers that were not given are removed.
 - The model is not called when there is nothing to answer from (no results, referrals only, or amended articles only).
+
+### Grounding checks (no invented rules)
+
+The model's answer is shown only if it passes these checks (`backend/llm/verify.py`):
+
+1. Every sentence ends with a citation to a source that was given, e.g. [1].
+2. Every number in a sentence, in digits or Arabic words («خمسة عشر», «ثلاثين»), appears in the sources that sentence cites.
+
+Otherwise the answer is replaced by «تعذّر توليد إجابة موثّقة بالمصادر لهذا السؤال…» and the retrieved articles are shown word for word, so the employee reads the text itself rather than an unchecked summary. The reason is logged (`Model answer not shown: …`). The checks catch statements without a source and invented periods, ages and counts; they cannot prove that a cited sentence reads its source correctly, so answers keep their citations for the employee to check.
+
+### Trying larger models
+
+On a 4-core Codespace, create each model with the same settings and set `LLM_MODEL` to its name:
+
+```bash
+ollama pull qwen3.5:4b
+printf 'FROM qwen3.5:4b\nPARAMETER num_ctx 8192\nPARAMETER num_batch 256\n' > /tmp/Modelfile
+ollama create tabayyun-qwen4b -f /tmp/Modelfile
+
+ollama pull hf.co/DevQuasar-8/ALLaM-AI.ALLaM-7B-Instruct-preview-GGUF:Q4_K_M
+printf 'FROM hf.co/DevQuasar-8/ALLaM-AI.ALLaM-7B-Instruct-preview-GGUF:Q4_K_M\nPARAMETER num_ctx 4096\nPARAMETER num_batch 256\n' > /tmp/Modelfile
+ollama create tabayyun-allam -f /tmp/Modelfile
+```
+
+ALLaM-7B is trained with a 4,096-token context. Its GGUF build is a community conversion of the official weights (`humain-ai/ALLaM-7B-Instruct-preview`); check the repository's files if the quantisation tag is not found.

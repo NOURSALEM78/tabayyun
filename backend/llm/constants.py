@@ -9,6 +9,12 @@ NOT_FOUND_TEXT: Final[str] = "لم أجد في الأنظمة المتاحة ن�
 # Low temperature: the answer should follow the sources, not vary between runs.
 LLM_TEMPERATURE: Final[float] = 0.1
 
+# Shown instead of a model answer that failed the grounding checks (backend/llm/verify.py),
+# followed by the retrieved articles word for word.
+UNVERIFIED_TEXT: Final[str] = (
+    "تعذّر توليد إجابة موثّقة بالمصادر لهذا السؤال. هذه أقرب المواد إليه كما وردت:"
+)
+
 AMENDED_TEXT_PREFIX: Final[str] = "نص المادة كما ورد"
 REFERRAL_PREFIX: Final[str] = "إحالة"
 SOURCES_HEADING: Final[str] = "المصادر"

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from backend.llm.answer import compose_answer, render
 from backend.llm.client import _THINKING
-from backend.llm.constants import NOT_FOUND_TEXT
+from backend.llm.constants import NOT_FOUND_TEXT, UNVERIFIED_TEXT
 from backend.retrieval.types import Candidate, Referral, RetrievalResult
 
 NOTICE = "⚠ تنبيه: هذه المادة عليها تعديلات. يُرجى الرجوع إلى الإدارة القانونية."
@@ -31,7 +31,10 @@ def article(chunk_id: str, number: int, title: str = "اللائحة", text: str
 
 def test_model_sees_plain_articles_only_and_code_quotes_the_amended_one() -> None:
     result = RetrievalResult(
-        chunks=[article("A87", 87), article("A34", 34, "النظام", "خمسة عشر يوما")],
+        chunks=[
+            article("A87", 87, text="نص المادة 87: ثلاثين يوما"),
+            article("A34", 34, "النظام", "خمسة عشر يوما"),
+        ],
         amended_notices={"A34": NOTICE},
     )
     model = FakeModel("المدة ثلاثون يومًا [1].")
@@ -40,6 +43,7 @@ def test_model_sees_plain_articles_only_and_code_quotes_the_amended_one() -> Non
 
     assert "نص المادة 87" in model.prompts[0]
     assert "خمسة عشر" not in model.prompts[0]
+    assert answer.text == "المدة ثلاثون يومًا [1]."
     assert answer.amended[0].text == "خمسة عشر يوما"
     text = render(answer)
     assert "نص المادة كما ورد: «خمسة عشر يوما»" in text
@@ -76,12 +80,43 @@ def test_nothing_retrieved_is_insufficient_without_the_model() -> None:
     assert answer.response_type == "insufficient"
 
 
-def test_citations_to_missing_sources_are_removed() -> None:
-    result = RetrievalResult(chunks=[article("A87", 87), article("A88", 88)])
-    answer = compose_answer("سؤال", result, FakeModel("المدة ثلاثون يومًا [٢] [7]."))
+def test_grounded_answer_is_shown_with_only_its_cited_sources() -> None:
+    result = RetrievalResult(
+        chunks=[article("A87", 87, text="داخل المدن ثلاثين يوما"), article("A88", 88)]
+    )
+    answer = compose_answer("سؤال", result, FakeModel("المدة داخل المدن ثلاثون يومًا [١]."))
 
-    assert answer.text == "المدة ثلاثون يومًا [2]."
-    assert [source.number for source in answer.sources] == [2]
+    assert answer.text == "المدة داخل المدن ثلاثون يومًا [1]."
+    assert [source.number for source in answer.sources] == [1]
+    assert answer.rejected_reason == ""
+
+
+def test_invented_number_is_not_shown_and_articles_are_quoted() -> None:
+    """The model said 13 days; no source says 13, so the articles are shown instead."""
+    result = RetrievalResult(chunks=[article("A87", 87, text="داخل المدن ثلاثين يوما")])
+    answer = compose_answer("سؤال", result, FakeModel("المدة ثلاثة عشر يومًا [1]."))
+
+    assert answer.text == UNVERIFIED_TEXT
+    assert "13" in answer.rejected_reason
+    text = render(answer)
+    assert "«داخل المدن ثلاثين يوما»" in text
+    assert "ثلاثة عشر" not in text
+    assert answer.response_type == "insufficient"
+
+
+def test_answer_without_citations_is_not_shown() -> None:
+    result = RetrievalResult(chunks=[article("A87", 87, text="ثلاثين يوما")])
+    answer = compose_answer("سؤال", result, FakeModel("المدة ثلاثون يومًا حسب الولاية."))
+
+    assert answer.text == UNVERIFIED_TEXT
+    assert "without a source" in answer.rejected_reason
+
+
+def test_citation_to_a_source_not_given_is_not_shown() -> None:
+    result = RetrievalResult(chunks=[article("A87", 87, text="ثلاثين يوما")])
+    answer = compose_answer("سؤال", result, FakeModel("المدة ثلاثون يومًا [7]."))
+
+    assert answer.text == UNVERIFIED_TEXT
 
 
 def test_model_saying_not_found_lists_no_sources() -> None:
@@ -138,3 +173,12 @@ def test_client_sends_reasoning_effort_and_reports_server_errors() -> None:
             OpenAICompatibleModel(url, "missing").complete("s", "u")
     finally:
         server.shutdown()
+
+
+def test_number_words_and_compounds_are_read() -> None:
+    from backend.llm.verify import numbers_in
+
+    text = "خمسة عشر يوما وثلاثين يومًا وخمسين كيلا وثمانية عشرة عاماً والمادة (34)"
+    assert numbers_in(text) == {15, 30, 50, 18, 34}
+    assert numbers_in("أحد الوالدين أو أحد عشر شخصًا") == {11}
+    assert numbers_in("خمسة وعشرون") == {25}

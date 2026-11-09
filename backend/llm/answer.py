@@ -8,7 +8,9 @@ amended. The parts that must be exact are assembled by code:
 * referrals for rules changed by documents the employee may not see;
 * the list of sources.
 
-The model is not called at all when there is nothing for it to answer from.
+The model is not called at all when there is nothing for it to answer from. Its answer
+is shown only if it passes the grounding checks in ``backend.llm.verify``; otherwise the
+retrieved articles are shown word for word instead.
 """
 
 from __future__ import annotations
@@ -23,8 +25,10 @@ from backend.llm.constants import (
     NOT_FOUND_TEXT,
     REFERRAL_PREFIX,
     SOURCES_HEADING,
+    UNVERIFIED_TEXT,
 )
 from backend.llm.prompts import SYSTEM_PROMPT, PromptSource, build_user_prompt
+from backend.llm.verify import verify_answer
 from backend.retrieval.types import Candidate, RetrievalResult
 
 _CITATION = re.compile(r"\[([0-9٠-٩]+)\]")
@@ -58,12 +62,16 @@ class Answer:
     amended: list[AmendedArticle] = field(default_factory=list)
     referrals: list[str] = field(default_factory=list)
     sources: list[Source] = field(default_factory=list)
+    # Articles shown word for word when the model's answer failed the checks.
+    quoted: list[PromptSource] = field(default_factory=list)
     model_called: bool = False
+    # Why the model's answer was not shown (empty when it was shown or not needed).
+    rejected_reason: str = ""
 
     @property
     def response_type(self) -> str:
         """answer, referral or insufficient (the categories stored in query_log)."""
-        if (self.text and self.text != NOT_FOUND_TEXT) or self.amended:
+        if (self.text and self.text not in (NOT_FOUND_TEXT, UNVERIFIED_TEXT)) or self.amended:
             return "answer"
         return "referral" if self.referrals else "insufficient"
 
@@ -77,21 +85,17 @@ def _article_text(candidate: Candidate) -> str:
     return candidate.article_text or candidate.text
 
 
-def _cited_numbers(text: str, allowed: set[int]) -> tuple[str, list[int]]:
-    """Remove citations to sources that do not exist; return the text and the valid ones."""
+def _with_plain_citations(text: str) -> tuple[str, list[int]]:
+    """Write citation numbers in Latin digits; return the text and the numbers cited."""
     cited: list[int] = []
 
-    def keep_or_drop(match: re.Match[str]) -> str:
+    def plain(match: re.Match[str]) -> str:
         number = int(match.group(1).translate(_ARABIC_DIGITS))
-        if number not in allowed:
-            return ""
         if number not in cited:
             cited.append(number)
         return f"[{number}]"
 
-    cleaned = _CITATION.sub(keep_or_drop, text)
-    cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
-    return re.sub(r"[ \t]+([.،؛:])", r"\1", cleaned).strip(), sorted(cited)
+    return _CITATION.sub(plain, text).strip(), sorted(cited)
 
 
 def compose_answer(question: str, result: RetrievalResult, model: ChatModel) -> Answer:
@@ -115,9 +119,22 @@ def compose_answer(question: str, result: RetrievalResult, model: ChatModel) -> 
         if NOT_FOUND_TEXT in reply:
             answer.text = NOT_FOUND_TEXT
         else:
-            answer.text, cited = _cited_numbers(reply, {source.number for source in plain})
-            used = [source for source in plain if source.number in cited] or plain
-            answer.sources = [Source(source.number, source.citation) for source in used]
+            text, cited = _with_plain_citations(reply)
+            verdict = verify_answer(
+                text, {source.number: f"{source.citation}\n{source.text}" for source in plain}
+            )
+            if verdict.ok:
+                answer.text = text
+                answer.sources = [
+                    Source(source.number, source.citation)
+                    for source in plain
+                    if source.number in cited
+                ]
+            else:
+                answer.text = UNVERIFIED_TEXT
+                answer.rejected_reason = verdict.reason
+                answer.quoted = plain
+                answer.sources = [Source(source.number, source.citation) for source in plain]
     elif not answer.amended and not answer.referrals:
         answer.text = NOT_FOUND_TEXT
 
@@ -133,6 +150,8 @@ def render(answer: Answer) -> str:
     blocks: list[str] = []
     if answer.text:
         blocks.append(answer.text)
+    for source in answer.quoted:
+        blocks.append(f"[{source.number}] {source.citation}\n«{source.text}»")
     for item in answer.amended:
         blocks.append(
             f"[{item.number}] {item.citation}\n{item.notice}\n"
