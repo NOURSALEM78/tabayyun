@@ -92,16 +92,16 @@ For one question and one employee:
 3. **Hybrid search:** by meaning (BGE-M3 + pgvector, cosine) and by keywords (BM25 on normalised text), fused with reciprocal rank fusion.
 4. **Changed rules:** if an article (or its whole document) was amended, repealed, replaced or excepted by a document the employee may not see, its old text is dropped and the issuer's referral text is returned instead; the hidden document is never named. If the employee may see the newer document, the article is kept with a note naming it.
 
-### Test circular (secret amendment)
+### Amended law articles
 
-To try requirement 4, load one fictional circular. It is marked as a test in its number (`تجريبي-1`), title and text, and no column is added for it:
+Fourteen articles of the Civil Status Law (2, 15, 19, 20, 22, 25, 26, 34, 38, 67, 74, 76, 82, 83) carry the mark «تعديلات المادة» in `civil_status_law.pdf`. The mark links to an internal file of the legal department that the project does not have, so the amendment's text, date and instrument are unknown. Each is recorded as an `amends` relation from a document «تعديلات المادة (n)» (`data/seed/documents.json`, `relations.json`). Because the system holds no text for those documents, the article is still returned, for every employee, but with a notice that it was amended and the issuer's referral (`amended_notices` in the result):
+
+> ⚠ تنبيه: هذه المادة عليها تعديلات لدى الإدارة القانونية، ولا يتوفر للنظام نص التعديل. للحصول على الحكم المعمول به في هذه المسألة، يُرجى الرجوع إلى الإدارة القانونية بوكالة وزارة الداخلية للأحوال المدنية.
+
+The answer then quotes the article word for word («نص المادة كما ورد: …») with its citation; it must not summarise it or state its rule as settled.
 
 ```
-python -m backend.retrieval.demo
-python -m backend.retrieval.embed
-python -m backend.retrieval.search "كم مدة التبليغ عن المواليد داخل المدن؟" --employee E001
-python -m backend.retrieval.search "كم مدة التبليغ عن المواليد داخل المدن؟" --employee E009
-python -m backend.retrieval.demo --remove
+python -m backend.retrieval.search "كم مدة التبليغ عن المواليد؟" --employee E009
 ```
 
-The circular (`data/demo/secret_circular.json`) is classified secret, visible only to roles R4 and R5, and amends regulation article 87. E001 (registrar) gets a referral instead of article 87; E009 (department director) gets article 87 with a note and the circular itself. Remove it when testing is done.
+A secret circular is different: an article changed by a document the employee may not see is dropped and only the referral is returned, without the article or the circular's name.

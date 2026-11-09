@@ -1,7 +1,8 @@
-"""Tests for rank fusion, the override (secret amendment) rule and keyword search."""
+"""Tests for rank fusion, the override rules (secret amendments, amendment notices) and keyword search."""
 
 from __future__ import annotations
 
+from backend.retrieval.constants import AMENDED_NOTICE
 from backend.retrieval.keyword import KeywordIndex, tokenize
 from backend.retrieval.rules import apply_overrides, fuse_rankings
 from backend.retrieval.types import Candidate, Override
@@ -11,8 +12,12 @@ def candidate(chunk_id: str, doc_id: int = 2, article_id: int = 87) -> Candidate
     return Candidate(chunk_id, "نص", doc_id, "اللائحة", article_id, article_id, "المادة", 1)
 
 
-def override(source: int, article: int | None = 87, title: str = "تعميم") -> Override:
-    return Override(source, title, 2, article, "amends", "الوكالة", "يُرجى الرجوع إلى الوكالة.")
+def override(
+    source: int, article: int | None = 87, title: str = "تعميم", held: bool = True
+) -> Override:
+    return Override(
+        source, title, 2, article, "amends", "الوكالة", "يُرجى الرجوع إلى الوكالة.", held
+    )
 
 
 def test_fusion_rewards_chunks_found_by_both_methods() -> None:
@@ -75,6 +80,46 @@ def test_only_well_ranked_chunks_produce_referrals() -> None:
 
     assert [chunk.chunk_id for chunk in result.chunks] == ["A1"]
     assert result.referrals == []
+
+
+def test_unheld_article_amendment_keeps_text_with_notice_and_referral() -> None:
+    """An article amended in a file the system lacks is quoted with a notice, not dropped."""
+    result = apply_overrides(
+        [candidate("A87")], [override(20, held=False)], visible_doc_ids={2, 20}, limit=5
+    )
+
+    assert [chunk.chunk_id for chunk in result.chunks] == ["A87"]
+    assert result.amended_notices["A87"].startswith(AMENDED_NOTICE)
+    assert result.amended_notices["A87"].endswith("يُرجى الرجوع إلى الوكالة.")
+    assert result.referrals == []
+    assert result.changed_by == {}
+
+
+def test_secret_change_wins_over_amendment_notice() -> None:
+    """If a secret document also changed the article, only the referral is given."""
+    result = apply_overrides(
+        [candidate("A87")],
+        [override(20, held=False), override(12)],
+        visible_doc_ids={2, 20},
+        limit=5,
+    )
+
+    assert result.chunks == []
+    assert result.amended_notices == {}
+    assert result.response_type == "referral"
+
+
+def test_unheld_whole_document_amendment_does_not_hide_every_article() -> None:
+    """Public decisions that amend the regulation as a whole are already in its text."""
+    result = apply_overrides(
+        [candidate("A1", article_id=1)],
+        [override(6, article=None, held=False)],
+        visible_doc_ids={2, 6},
+        limit=5,
+    )
+
+    assert [chunk.chunk_id for chunk in result.chunks] == ["A1"]
+    assert result.amended_notices == {}
 
 
 def test_nothing_found_is_insufficient() -> None:

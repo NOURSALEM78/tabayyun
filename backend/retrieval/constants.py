@@ -17,3 +17,9 @@ RESULTS_LIMIT: Final[int] = 5
 # Relations that make an article's public text no longer the rule in force.
 OVERRIDING_RELATIONS: Final[tuple[str, ...]] = ("amends", "repeals", "replaces", "excepts")
 ACTIVE_DOCUMENT_STATUSES: Final[tuple[str, ...]] = ("active", "amended")
+
+# Shown with an article whose amendment text the system does not hold (the issuer's
+# referral text follows it). The article itself must then be quoted, never summarised.
+AMENDED_NOTICE: Final[str] = (
+    "⚠ تنبيه: هذه المادة عليها تعديلات لدى الإدارة القانونية، ولا يتوفر للنظام نص التعديل."
+)

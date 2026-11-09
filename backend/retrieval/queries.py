@@ -131,6 +131,7 @@ def load_overrides(connection: Connection) -> list[Override]:
             DocumentRelation.relation_type,
             Issuer.name,
             Issuer.referral_text,
+            exists().where(Article.doc_id == DocumentRelation.source_doc_id).label("held"),
         )
         .join(source, source.c.doc_id == DocumentRelation.source_doc_id)
         .join(Issuer, Issuer.issuer_id == source.c.issuer_id)

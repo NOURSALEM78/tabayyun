@@ -40,6 +40,9 @@ class Override:
     relation_type: str
     issuer_name: str
     referral_text: str
+    # False when the system holds no text for the changing document (e.g. an amendment
+    # kept only in an internal file): the article is shown with an amendment notice.
+    source_held: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +65,9 @@ class RetrievalResult:
     referrals: list[Referral] = field(default_factory=list)
     # chunk_id -> titles of documents the requester may see that changed that chunk's rule
     changed_by: dict[str, list[str]] = field(default_factory=dict)
+    # chunk_id -> notice for an article amended by a text the system does not hold: the
+    # article is quoted word for word with this notice and referral, never summarised.
+    amended_notices: dict[str, str] = field(default_factory=dict)
 
     @property
     def response_type(self) -> str:

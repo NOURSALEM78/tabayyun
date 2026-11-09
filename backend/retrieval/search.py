@@ -86,7 +86,12 @@ def _print(result: RetrievalResult) -> None:
         print(f"[إحالة] {referral.referral_text}")
     for number, chunk in enumerate(result.chunks, start=1):
         print(f"\n{number}. {chunk.doc_title} - {chunk.article_label} (بند {chunk.clause_no})")
-        print(f"   {chunk.text[:300]}")
+        notice = result.amended_notices.get(chunk.chunk_id)
+        if notice:
+            print(f"   {notice}")
+            print(f"   نص المادة كما ورد: «{chunk.text}»")
+        else:
+            print(f"   {chunk.text[:300]}")
         for title in result.changed_by.get(chunk.chunk_id, []):
             print(f"   ⚠ عُدّل حكم هذه المادة بموجب: {title}")
     if not result.chunks and not result.referrals:
