@@ -1,0 +1,27 @@
+{
+  "_note": "Fixed test questions for comparing language models. 'expected' lists the articles that hold the answer; 'expect' is the reply type the system should give: answer, referral (amended article or secret change) or insufficient (not in the regulations).",
+  "questions": [
+    {"id": "Q01", "question": "كم مدة التبليغ عن المواليد؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "اللائحة التنفيذية لنظام الأحوال المدنية", "article": 87}, {"doc": "نظام الأحوال المدنية", "article": 34}]},
+    {"id": "Q02", "question": "كم مدة التبليغ عن الوفاة؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الأحوال المدنية", "article": 54}, {"doc": "اللائحة التنفيذية لنظام الأحوال المدنية", "article": 129}]},
+    {"id": "Q03", "question": "ما المدة المحددة للتبليغ عن الطفل اللقيط؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الأحوال المدنية", "article": 40}]},
+    {"id": "Q04", "question": "إذا حدثت الوفاة أثناء السفر خارج المملكة، متى يجب التبليغ عنها وأين؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الأحوال المدنية", "article": 55}]},
+    {"id": "Q05", "question": "ما مدة التظلم من قرارات اللجان الفرعية أمام ديوان المظالم؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الأحوال المدنية", "article": 85}]},
+    {"id": "Q06", "question": "ممن تتكون الهيئة المركزية للأحوال المدنية؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الأحوال المدنية", "article": 86}]},
+    {"id": "Q07", "question": "هل يجوز نقل السجلات المدنية من مكاتب الأحوال المدنية؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الأحوال المدنية", "article": 11}]},
+    {"id": "Q08", "question": "متى يجب على السعودي الحصول على بطاقة شخصية؟", "employee": "E001", "expect": "referral",
+     "expected": [{"doc": "نظام الأحوال المدنية", "article": 67}]},
+    {"id": "Q09", "question": "هل تفقد المرأة السعودية جنسيتها إذا تزوجت بأجنبي؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الجنسية العربية السعودية", "article": 17}]},
+    {"id": "Q10", "question": "ما مدة الإقامة المطلوبة لمنح الأجنبي الجنسية السعودية؟", "employee": "E001", "expect": "answer",
+     "expected": [{"doc": "نظام الجنسية العربية السعودية", "article": 9}]},
+    {"id": "Q11", "question": "كم رسوم إصدار جواز السفر؟", "employee": "E001", "expect": "insufficient",
+     "expected": []}
+  ]
+}

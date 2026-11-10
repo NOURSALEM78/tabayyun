@@ -3,8 +3,9 @@
 The model writes only the answer drawn from articles in force that are not marked as
 amended. The parts that must be exact are assembled by code:
 
-* articles amended by a text the system does not hold: the notice, the article quoted
-  word for word from the database, and the referral;
+* articles amended by a text the system does not hold: the article's name, the notice
+  and the referral. Their text is never shown or given to the model, since it may no
+  longer be the rule in force;
 * referrals for rules changed by documents the employee may not see;
 * the list of sources.
 
@@ -21,14 +22,13 @@ from dataclasses import dataclass, field
 from backend.llm.client import ChatModel
 from backend.llm.constants import (
     AMENDED_LABEL,
-    AMENDED_TEXT_PREFIX,
     NOT_FOUND_TEXT,
     REFERRAL_PREFIX,
     SOURCES_HEADING,
     UNVERIFIED_TEXT,
 )
 from backend.llm.prompts import SYSTEM_PROMPT, PromptSource, build_user_prompt
-from backend.llm.verify import verify_answer
+from backend.llm.verify import attach_verbatim_citations, verify_answer
 from backend.retrieval.types import Candidate, RetrievalResult
 
 _CITATION = re.compile(r"\[([0-9٠-٩]+)\]")
@@ -46,12 +46,11 @@ class Source:
 
 @dataclass(frozen=True, slots=True)
 class AmendedArticle:
-    """An article shown word for word with its amendment notice and referral."""
+    """An article named with its amendment notice and referral; its text is not shown."""
 
     number: int
     citation: str
     notice: str
-    text: str
 
 
 @dataclass(slots=True)
@@ -67,13 +66,15 @@ class Answer:
     model_called: bool = False
     # Why the model's answer was not shown (empty when it was shown or not needed).
     rejected_reason: str = ""
+    # The model's reply as received, kept for evaluation (never shown as such).
+    raw_reply: str = ""
 
     @property
     def response_type(self) -> str:
         """answer, referral or insufficient (the categories stored in query_log)."""
-        if (self.text and self.text not in (NOT_FOUND_TEXT, UNVERIFIED_TEXT)) or self.amended:
+        if self.text and self.text not in (NOT_FOUND_TEXT, UNVERIFIED_TEXT):
             return "answer"
-        return "referral" if self.referrals else "insufficient"
+        return "referral" if self.referrals or self.amended else "insufficient"
 
 
 def citation_of(candidate: Candidate) -> str:
@@ -105,9 +106,7 @@ def compose_answer(question: str, result: RetrievalResult, model: ChatModel) -> 
     for number, candidate in enumerate(result.chunks, start=1):
         notice = result.amended_notices.get(candidate.chunk_id)
         if notice:
-            answer.amended.append(
-                AmendedArticle(number, citation_of(candidate), notice, _article_text(candidate))
-            )
+            answer.amended.append(AmendedArticle(number, citation_of(candidate), notice))
             continue
         titles = result.changed_by.get(candidate.chunk_id, [])
         note = f"(عُدّل حكم هذه المادة بموجب: {'، '.join(titles)})" if titles else ""
@@ -116,13 +115,16 @@ def compose_answer(question: str, result: RetrievalResult, model: ChatModel) -> 
     if plain:
         reply = model.complete(SYSTEM_PROMPT, build_user_prompt(question, plain))
         answer.model_called = True
+        answer.raw_reply = reply
         if NOT_FOUND_TEXT in reply:
             answer.text = NOT_FOUND_TEXT
         else:
-            text, cited = _with_plain_citations(reply)
-            verdict = verify_answer(
-                text, {source.number: f"{source.citation}\n{source.text}" for source in plain}
+            texts = {source.number: f"{source.citation}\n{source.text}" for source in plain}
+            text, _ = _with_plain_citations(reply)
+            text, cited = _with_plain_citations(
+                attach_verbatim_citations(text, {s.number: s.text for s in plain})
             )
+            verdict = verify_answer(text, texts)
             if verdict.ok:
                 answer.text = text
                 answer.sources = [
@@ -152,11 +154,7 @@ def render(answer: Answer) -> str:
         blocks.append(answer.text)
     for source in answer.quoted:
         blocks.append(f"[{source.number}] {source.citation}\n«{source.text}»")
-    for item in answer.amended:
-        blocks.append(
-            f"[{item.number}] {item.citation}\n{item.notice}\n"
-            f"{AMENDED_TEXT_PREFIX}: «{item.text}»"
-        )
+    blocks += [f"[{item.number}] {item.citation}\n{item.notice}" for item in answer.amended]
     blocks += [f"{REFERRAL_PREFIX}: {text}" for text in answer.referrals]
     if answer.sources:
         lines = [f"{SOURCES_HEADING}:"]

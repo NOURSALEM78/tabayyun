@@ -29,7 +29,7 @@ def article(chunk_id: str, number: int, title: str = "اللائحة", text: str
     )
 
 
-def test_model_sees_plain_articles_only_and_code_quotes_the_amended_one() -> None:
+def test_amended_article_is_named_with_notice_but_its_text_is_never_shown() -> None:
     result = RetrievalResult(
         chunks=[
             article("A87", 87, text="نص المادة 87: ثلاثين يوما"),
@@ -41,12 +41,11 @@ def test_model_sees_plain_articles_only_and_code_quotes_the_amended_one() -> Non
 
     answer = compose_answer("كم المدة؟", result, model)
 
-    assert "نص المادة 87" in model.prompts[0]
     assert "خمسة عشر" not in model.prompts[0]
     assert answer.text == "المدة ثلاثون يومًا [1]."
-    assert answer.amended[0].text == "خمسة عشر يوما"
     text = render(answer)
-    assert "نص المادة كما ورد: «خمسة عشر يوما»" in text
+    assert "خمسة عشر" not in text
+    assert f"[2] النظام، المادة 34\n{NOTICE}" in text
     assert "[2] النظام، المادة 34 (معدّلة)" in text
     assert answer.response_type == "answer"
 
@@ -59,7 +58,8 @@ def test_only_amended_articles_do_not_call_the_model() -> None:
 
     assert model.prompts == []
     assert answer.text == ""
-    assert answer.response_type == "answer"
+    assert "نص المادة 34" not in render(answer)
+    assert answer.response_type == "referral"
 
 
 def test_referral_only_does_not_call_the_model() -> None:
@@ -182,3 +182,40 @@ def test_number_words_and_compounds_are_read() -> None:
     assert numbers_in(text) == {15, 30, 50, 18, 34}
     assert numbers_in("أحد الوالدين أو أحد عشر شخصًا") == {11}
     assert numbers_in("خمسة وعشرون") == {25}
+
+
+def test_uncited_sentence_copied_from_a_source_gets_its_number() -> None:
+    """ALLaM copied article 88 word for word without [1]; the code adds the number."""
+    text = "تكون مدة التبليغ عن واقعات الميلاد المنصوص عليها بالمادة (35) من النظام ثلاثين يوما."
+    result = RetrievalResult(chunks=[article("A87", 87, text="داخل المدن"), article("A88", 88, text=text)])
+
+    answer = compose_answer("سؤال", result, FakeModel(text))
+
+    assert answer.text == text[:-1] + " [2]."
+    assert [source.number for source in answer.sources] == [2]
+    assert answer.raw_reply == text
+
+
+def test_reworded_or_short_uncited_sentences_get_no_number() -> None:
+    from backend.llm.verify import attach_verbatim_citations
+
+    sources = {1: "تكون مدة التبليغ عن واقعات الميلاد داخل المدن ثلاثين يوما."}
+    assert attach_verbatim_citations("المدة ثلاثون يومًا للمواليد في المدن.", sources) == (
+        "المدة ثلاثون يومًا للمواليد في المدن."
+    )
+    assert attach_verbatim_citations("ثلاثين يوما.", sources) == "ثلاثين يوما."
+
+
+def test_evaluation_scores_cited_and_expected_articles() -> None:
+    from backend.llm.evaluate import score
+
+    case = {"expect": "answer", "expected": [{"doc": "اللائحة", "article": 87}]}
+    result = RetrievalResult(chunks=[article("A87", 87, text="ثلاثين يوما"), article("A88", 88)])
+    answer = compose_answer("سؤال", result, FakeModel("المدة ثلاثون يومًا [1]."))
+
+    scored = score(case, result, answer)
+
+    assert scored["expected_retrieved"] is True
+    assert scored["expected_cited"] is True
+    assert scored["type_ok"] is True
+    assert scored["cited"] == ["اللائحة:87"]

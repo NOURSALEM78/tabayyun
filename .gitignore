@@ -5,4 +5,4 @@ __pycache__/
 data/processed/
 .pytest_cache/
 .ruff_cache/
-.tessdata_best/
+.tessdata_best/results/

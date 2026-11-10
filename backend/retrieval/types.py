@@ -73,7 +73,7 @@ class RetrievalResult:
     # chunk_id -> titles of documents the requester may see that changed that chunk's rule
     changed_by: dict[str, list[str]] = field(default_factory=dict)
     # chunk_id -> notice for an article amended by a text the system does not hold: the
-    # article is quoted word for word with this notice and referral, never summarised.
+    # article is named with this notice and referral; its text is never shown.
     amended_notices: dict[str, str] = field(default_factory=dict)
 
     @property

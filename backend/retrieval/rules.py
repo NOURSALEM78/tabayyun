@@ -67,7 +67,8 @@ def apply_overrides(
     * Changed by an amendment whose text the system does not hold (law articles marked
       «تعديلات المادة» whose amendment file is internal): the chunk is kept, and
       ``amended_notices`` carries a notice that the article was amended plus the
-      issuer's referral. The answer must quote the article word for word.
+      issuer's referral. The article's text is never shown, since its rule in
+      force is unknown.
     * Changed by a document the requester may see and the system holds: the chunk is
       kept. When the change names this article, the newer document's title is recorded
       in ``changed_by`` (its own text is searchable too). Whole-document amendments

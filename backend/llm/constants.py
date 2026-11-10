@@ -15,7 +15,6 @@ UNVERIFIED_TEXT: Final[str] = (
     "تعذّر توليد إجابة موثّقة بالمصادر لهذا السؤال. هذه أقرب المواد إليه كما وردت:"
 )
 
-AMENDED_TEXT_PREFIX: Final[str] = "نص المادة كما ورد"
 REFERRAL_PREFIX: Final[str] = "إحالة"
 SOURCES_HEADING: Final[str] = "المصادر"
 AMENDED_LABEL: Final[str] = "(معدّلة)"

@@ -95,15 +95,10 @@ For one question and one employee:
 
 ### Amended law articles
 
-Fourteen articles of the Civil Status Law (2, 15, 19, 20, 22, 25, 26, 34, 38, 67, 74, 76, 82, 83) carry the mark «تعديلات المادة» in `civil_status_law.pdf`. The mark links to an internal file of the legal department that the project does not have, so the amendment's text, date and instrument are unknown. Each is recorded as an `amends` relation from a document «تعديلات المادة (n)» (`data/seed/documents.json`, `relations.json`). Because the system holds no text for those documents, the article is still returned, for every employee, but with a notice that it was amended and the issuer's referral (`amended_notices` in the result):
+Fourteen articles of the Civil Status Law (2, 15, 19, 20, 22, 25, 26, 34, 38, 67, 74, 76, 82, 83) carry the mark «تعديلات المادة» in `civil_status_law.pdf`. The mark links to an internal file of the legal department that the project does not have, so the amendment's text, date and instrument are unknown. Each is recorded as an `amends` relation from a document «تعديلات المادة (n)» (`data/seed/documents.json`, `relations.json`). Because the system holds no text for those documents, the article's current rule is unknown. Its old text is therefore never shown or given to the model: for every employee, the reply names the article and gives a notice that it was amended, with the issuer's referral (`amended_notices` in the retrieval result):
 
+> [3] نظام الأحوال المدنية، المادة 34
 > ⚠ تنبيه: هذه المادة عليها تعديلات لدى الإدارة القانونية، ولا يتوفر للنظام نص التعديل. للحصول على الحكم المعمول به في هذه المسألة، يُرجى الرجوع إلى الإدارة القانونية بوكالة وزارة الداخلية للأحوال المدنية.
-
-The answer then quotes the article word for word («نص المادة كما ورد: …») with its citation; it must not summarise it or state its rule as settled.
-
-```
-python -m backend.retrieval.search "كم مدة التبليغ عن المواليد؟" --employee E009
-```
 
 A secret circular is different: an article changed by a document the employee may not see is dropped and only the referral is returned, without the article or the circular's name.
 
@@ -138,17 +133,26 @@ python -m backend.llm.ask "كم مدة التبليغ عن المواليد؟" -
 ### What the model writes and what code writes
 
 - The model receives only the retrieved articles that are in force and not marked as amended, numbered [1], [2], …, and is told to answer from them only, cite the number after each statement, ignore unrelated articles, and reply with a fixed «not found» sentence otherwise (`backend/llm/prompts.py`).
-- Code adds the exact parts: each amended article with its notice, quoted word for word from the database, and the referral; referrals for secret changes; and the source list. Citations to numbers that were not given are removed.
+- Code adds the exact parts: each amended article's name with its notice and referral (never its text); referrals for secret changes; and the source list.
 - The model is not called when there is nothing to answer from (no results, referrals only, or amended articles only).
 
 ### Grounding checks (no invented rules)
 
 The model's answer is shown only if it passes these checks (`backend/llm/verify.py`):
 
-1. Every sentence ends with a citation to a source that was given, e.g. [1].
+1. Every sentence ends with a citation to a source that was given, e.g. [1]. A sentence without one that repeats a source word for word (at least five words) is given that source's number by code first, since copied text is grounded by definition.
 2. Every number in a sentence, in digits or Arabic words («خمسة عشر», «ثلاثين»), appears in the sources that sentence cites.
 
 Otherwise the answer is replaced by «تعذّر توليد إجابة موثّقة بالمصادر لهذا السؤال…» and the retrieved articles are shown word for word, so the employee reads the text itself rather than an unchecked summary. The reason is logged (`Model answer not shown: …`). The checks catch statements without a source and invented periods, ages and counts; they cannot prove that a cited sentence reads its source correctly, so answers keep their citations for the employee to check.
+
+### Test questions and model comparison
+
+```bash
+python -m backend.llm.evaluate              # all questions in data/eval/questions.json
+python -m backend.llm.evaluate --only Q01 Q02
+```
+
+Each run saves `results/<model>-<time>.jsonl` (ignored by git), one line per question: the retrieved and cited articles, the model's raw reply, whether the checks rejected it and why, the reply shown, and the time. It is written after every question, so a run that stops part-way keeps its results. The printed summary shows, per question, whether the reply type is the expected one (answer / referral / insufficient), whether the model's answer was shown, and whether an expected article was cited. For long runs on the Codespace use `nohup python -m backend.llm.evaluate > results/run.log 2>&1 &`, so the run continues if the browser disconnects.
 
 ### Trying larger models
 

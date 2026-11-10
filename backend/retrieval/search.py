@@ -90,11 +90,8 @@ def _print(result: RetrievalResult) -> None:
         print(f"\n{number}. {chunk.doc_title} - {chunk.article_label} (أقرب بند: {chunk.clause_no})")
         text = chunk.article_text or chunk.text
         notice = result.amended_notices.get(chunk.chunk_id)
-        if notice:
-            print(f"   {notice}")
-            print(f"   نص المادة كما ورد: «{text}»")
-        else:
-            print(f"   {text}")
+        # An amended article's text may no longer be in force, so it is never shown.
+        print(f"   {notice}" if notice else f"   {text}")
         for title in result.changed_by.get(chunk.chunk_id, []):
             print(f"   ⚠ عُدّل حكم هذه المادة بموجب: {title}")
     if not result.chunks and not result.referrals:

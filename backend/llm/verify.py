@@ -6,7 +6,9 @@ The model's text is shown only when every check passes:
 2. Each number in a sentence (digits or Arabic number words such as «خمسة عشر»)
    appears in the sources that sentence cites (or in their citation labels).
 
-These checks cannot prove that an answer is right, but they catch the common ways a
+Before the checks, a sentence without a citation that repeats a source word for word
+gets that source's number (``attach_verbatim_citations``): text copied exactly from an
+article is grounded by definition. These checks cannot prove that an answer is right, but they catch the common ways a
 model invents a rule: a statement with no source, or a period, age or count that no
 source contains. An answer that fails is not shown; the articles themselves are.
 """
@@ -138,3 +140,33 @@ def verify_answer(text: str, sources: Mapping[int, str]) -> Verdict:
         if missing:
             return Verdict(False, f"numbers not in the cited sources {missing}: {sentence}")
     return Verdict(True)
+
+
+# A sentence is treated as copied from a source only if it is at least this many words.
+_MIN_VERBATIM_WORDS = 5
+_PIECE = re.compile(r"[^.؟!\n]+[.؟!]*")
+
+
+def _words(text: str) -> str:
+    """Normalised words only, for comparing a sentence with a source text."""
+    return " ".join(re.findall(r"[ء-ي0-9]+", normalise(text)))
+
+
+def attach_verbatim_citations(text: str, sources: Mapping[int, str]) -> str:
+    """Add [n] to each uncited sentence that repeats source n's text word for word."""
+    source_words = {number: f" {_words(body)} " for number, body in sources.items()}
+
+    def cite(match: re.Match[str]) -> str:
+        piece = match.group(0)
+        if _CITATION.search(piece):
+            return piece
+        words = _words(piece)
+        if len(words.split()) < _MIN_VERBATIM_WORDS:
+            return piece
+        for number, body in source_words.items():
+            if f" {words} " in body:
+                core = piece.rstrip(".؟! ")
+                return f"{core} [{number}]{piece[len(core):]}"
+        return piece
+
+    return _PIECE.sub(cite, text)
