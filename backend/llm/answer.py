@@ -72,7 +72,9 @@ class Answer:
     @property
     def response_type(self) -> str:
         """answer, referral or insufficient (the categories stored in query_log)."""
-        if self.text and self.text not in (NOT_FOUND_TEXT, UNVERIFIED_TEXT):
+        if self.text == UNVERIFIED_TEXT:
+            return "insufficient"
+        if self.text and self.text != NOT_FOUND_TEXT:
             return "answer"
         return "referral" if self.referrals or self.amended else "insufficient"
 

@@ -43,7 +43,7 @@ class FakeService:
     def __init__(self, reply: str = "المدة ثلاثون يومًا [1].", error: Exception | None = None):
         self.reply, self.error = reply, error
 
-    def ask(self, employee_id: str, question: str) -> AskResult:
+    def ask(self, employee_id: str, question: str, previous: str = "") -> AskResult:
         if self.error:
             raise self.error
         result = RetrievalResult(
@@ -146,3 +146,84 @@ def test_cited_chunk_ids_follow_the_source_numbers() -> None:
     result = RetrievalResult(chunks=[_article("C87", 87, ""), _article("C34", 34, "")])
 
     assert cited_chunk_ids(answer, result) == ["C87", "C34"]
+
+
+def test_short_follow_up_is_searched_with_the_previous_question() -> None:
+    from backend.llm.service import search_text
+
+    assert search_text("وإذا كانت خارج المملكة؟", "كم مدة التبليغ عن المواليد؟") == (
+        "كم مدة التبليغ عن المواليد؟ وإذا كانت خارج المملكة؟"
+    )
+    assert search_text("وإذا كانت خارج المملكة؟", "") == "وإذا كانت خارج المملكة؟"
+    long_question = "هل تفقد المرأة السعودية جنسيتها إذا تزوجت بأجنبي وأقامت معه خارج المملكة؟"
+    assert search_text(long_question, "سؤال سابق") == long_question
+
+
+def test_question_job_runs_in_the_background_and_keeps_the_conversation(
+    client: TestClient, monkeypatch
+) -> None:
+    import time
+
+    from backend.api.jobs import JobQueue
+
+    saved: list[tuple] = []
+    monkeypatch.setattr(
+        routes.conversations, "start_or_continue", lambda engine, emp, q, cid: (cid or 5, "سابق")
+    )
+    monkeypatch.setattr(
+        routes.conversations, "add_message", lambda engine, cid, q, data, qid: saved.append((cid, q))
+    )
+    service = FakeService()
+    seen: list[str] = []
+    original = service.ask
+    service.ask = lambda emp, q, previous="": (seen.append(previous), original(emp, q))[1]
+    queue = JobQueue()
+    app.dependency_overrides[routes.get_answer_service] = lambda: service
+    app.dependency_overrides[routes.get_jobs] = lambda: queue
+    app.dependency_overrides[routes.get_engine] = lambda: None
+
+    started = client.post("/api/ask/jobs", json={"employee_id": "E001", "question": "كم المدة؟"})
+    assert started.status_code == 202
+    job_id = started.json()["job_id"]
+    for _ in range(50):
+        body = client.get(f"/api/ask/jobs/{job_id}").json()
+        if body["status"] != "running":
+            break
+        time.sleep(0.05)
+
+    assert body["status"] == "done"
+    assert body["conversation_id"] == 5
+    assert body["result"]["answer"] == "المدة ثلاثون يومًا [1]."
+    assert saved == [(5, "كم المدة؟")]
+    assert seen == ["سابق"]
+
+
+def test_question_job_reports_model_errors(client: TestClient, monkeypatch) -> None:
+    import time
+
+    from backend.api.jobs import JobQueue
+
+    monkeypatch.setattr(routes.conversations, "start_or_continue", lambda *a: (1, ""))
+    app.dependency_overrides[routes.get_answer_service] = lambda: FakeService(
+        error=LLMError("down")
+    )
+    queue = JobQueue()
+    app.dependency_overrides[routes.get_jobs] = lambda: queue
+    app.dependency_overrides[routes.get_engine] = lambda: None
+
+    job_id = client.post(
+        "/api/ask/jobs", json={"employee_id": "E001", "question": "كم المدة؟"}
+    ).json()["job_id"]
+    for _ in range(50):
+        body = client.get(f"/api/ask/jobs/{job_id}").json()
+        if body["status"] != "running":
+            break
+        time.sleep(0.05)
+
+    assert body["status"] == "error"
+    assert "down" in body["error"]
+    assert queue.get(job_id).error_code == 503
+
+
+def test_unknown_job_is_404(client: TestClient) -> None:
+    assert client.get("/api/ask/jobs/nope").status_code == 404

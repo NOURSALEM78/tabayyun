@@ -19,6 +19,8 @@ EXPECTED_TABLES = {
     "cases",
     "case_findings",
     "query_log",
+    "conversations",
+    "messages",
     "access_requests",
     "access_grants",
     "audit_log",
@@ -27,7 +29,7 @@ EXPECTED_TABLES = {
 
 
 def test_schema_has_exactly_the_requested_tables() -> None:
-    """Ensure the ORM declares all 20 requested tables and no extras."""
+    """Ensure the ORM declares all 22 tables (20 requested plus chat history) and no extras."""
     assert set(Base.metadata.tables) == EXPECTED_TABLES
 
 

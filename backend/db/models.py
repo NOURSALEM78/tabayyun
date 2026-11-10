@@ -325,6 +325,35 @@ class QueryLog(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class Conversation(Base):
+    """A chat conversation of one employee; its title is the first question."""
+
+    __tablename__ = "conversations"
+
+    conversation_id: Mapped[int] = mapped_column(primary_key=True)
+    employee_id: Mapped[str] = mapped_column(ForeignKey("employees.employee_id"), index=True)
+    title: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class Message(Base):
+    """One question and the reply shown for it, stored as sent to the interface."""
+
+    __tablename__ = "messages"
+
+    message_id: Mapped[int] = mapped_column(primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(
+        ForeignKey("conversations.conversation_id"), index=True
+    )
+    query_id: Mapped[int | None] = mapped_column(ForeignKey("query_log.query_id"), nullable=True)
+    question: Mapped[str] = mapped_column(Text)
+    reply: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class AccessRequest(Base):
     """A request for an employee to perform an action on a resource."""
 

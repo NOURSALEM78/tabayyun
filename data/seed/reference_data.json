@@ -104,25 +104,25 @@
       "employee_id": "E001",
       "name": "سارة العتيبي",
       "role_id": "R1",
-      "department": "مكتب الأحوال المدنية - العزيزية"
+      "department": "مكتب الأحوال المدنية"
     },
     {
       "employee_id": "E002",
       "name": "عبدالله الشهري",
       "role_id": "R1",
-      "department": "مكتب الأحوال المدنية - الشرائع"
+      "department": "مكتب الأحوال المدنية"
     },
     {
       "employee_id": "E003",
       "name": "ريم الزهراني",
       "role_id": "R1",
-      "department": "مكتب الأحوال المدنية - العزيزية"
+      "department": "مكتب الأحوال المدنية"
     },
     {
       "employee_id": "E004",
       "name": "خالد الحربي",
       "role_id": "R1",
-      "department": "مكتب الأحوال المدنية - الشرائع"
+      "department": "مكتب الأحوال المدنية"
     },
     {
       "employee_id": "E005",
@@ -140,19 +140,19 @@
       "employee_id": "E007",
       "name": "فهد القحطاني",
       "role_id": "R3",
-      "department": "مكتب الأحوال المدنية - العزيزية"
+      "department": "مكتب الأحوال المدنية"
     },
     {
       "employee_id": "E008",
       "name": "منى العمري",
       "role_id": "R3",
-      "department": "مكتب الأحوال المدنية - الشرائع"
+      "department": "مكتب الأحوال المدنية"
     },
     {
       "employee_id": "E009",
       "name": "عبدالرحمن المالكي",
       "role_id": "R4",
-      "department": "إدارة الأحوال المدنية بالمنطقة"
+      "department": "إدارة الأحوال المدنية"
     },
     {
       "employee_id": "E010",

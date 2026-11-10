@@ -173,7 +173,7 @@ ALLaM-7B is trained with a 4,096-token context. Its GGUF build is a community co
 ## HTTP API
 
 ```bash
-python -m backend.db.database        # once: applies schema updates (access_requests columns)
+python -m backend.db.database        # creates new tables (conversations, messages) and applies schema updates
 uvicorn backend.main:app --port 8000
 ```
 
@@ -182,6 +182,11 @@ Open `/docs` on port 8000 (in a Codespace: the forwarded port's address) to try 
 | Method | Path | Body | Returns |
 |---|---|---|---|
 | POST | `/api/ask` | `{"employee_id": "E001", "question": "…"}` | Path 1: the checked answer, amended-article notices, referrals, articles quoted when the answer failed the checks, sources, the whole reply as text, model and time. Logged in `query_log`. |
+| POST | `/api/ask/jobs` | `{"employee_id": "E001", "question": "…", "conversation_id": null}` | Same answer for the interface, without long waits: returns a `job_id` at once (status 202); poll `GET /api/ask/jobs/{job_id}` until `status` is `done` (with `result`) or `error`. Starts a conversation when `conversation_id` is empty, otherwise adds to it. A short follow-up (8 words or fewer) is searched together with the conversation's previous question, and answered as asked. One question is answered at a time. |
+| GET | `/api/conversations?employee_id=E001` | | The employee's conversations, most recent first. |
+| GET | `/api/conversations/{id}?employee_id=E001` | | The questions and replies of one conversation (404 if it belongs to another employee). |
+| GET | `/api/documents?employee_id=E001` | | Documents in force the employee may see, with type, issuer, classification and whether articles are marked as amended. |
+| GET | `/api/requests?employee_id=E001` | | The employee's access requests with their decision and status. |
 | POST | `/api/access` | `{"employee_id": "E001", "resource_id": "RS001", "action_id": "A4"}` | Path 2: the decision from `decision_rules` (allowed / denied / requires_approval), its explanation and legal basis, the approver when one is needed, and the next step. Logged in `access_requests` (`auto` when the matrix decides, `pending` when approval is needed). The language model is not involved. |
 | GET | `/api/employees` | | Active employees with role and access level (the interface's employee picker until login exists). |
 | GET | `/api/resources` | | Resources with their classification. |

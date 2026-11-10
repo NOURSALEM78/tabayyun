@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -92,3 +94,53 @@ class ActionOut(BaseModel):
     action_id: str
     name: str
     definition: str
+
+
+class AskJobIn(BaseModel):
+    employee_id: str = Field(examples=["E001"])
+    question: str = Field(min_length=3, max_length=1000, examples=["كم مدة التبليغ عن المواليد؟"])
+    conversation_id: int | None = Field(
+        default=None, description="Leave empty to start a new conversation"
+    )
+
+
+class AskJobOut(BaseModel):
+    job_id: str
+    conversation_id: int
+    status: str = Field(description="running, done or error")
+    result: AskResponse | None = None
+    error: str = ""
+
+
+class ConversationOut(BaseModel):
+    conversation_id: int
+    title: str
+    updated_at: datetime
+
+
+class MessageOut(BaseModel):
+    message_id: int
+    question: str
+    reply: AskResponse
+    created_at: datetime
+
+
+class DocumentOut(BaseModel):
+    doc_id: int
+    title: str
+    doc_type: str
+    issuer: str
+    classification: str
+    status: str
+    has_amendments: bool
+
+
+class RequestOut(BaseModel):
+    request_id: int
+    resource_name: str
+    action_name: str
+    decision: str
+    decision_label: str
+    status: str
+    approver: str | None
+    created_at: datetime

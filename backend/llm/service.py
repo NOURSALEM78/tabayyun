@@ -22,6 +22,15 @@ from backend.retrieval.types import RetrievalResult
 logger = logging.getLogger(__name__)
 
 INTENT_QUESTION = "question"
+# A question this short in an ongoing conversation is treated as a follow-up.
+FOLLOW_UP_MAX_WORDS = 8
+
+
+def search_text(question: str, previous: str) -> str:
+    """The text to search with: a short follow-up is joined to the previous question."""
+    if previous and len(question.split()) <= FOLLOW_UP_MAX_WORDS:
+        return f"{previous} {question}"
+    return question
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,11 +82,17 @@ class AnswerService:
                 self._model_name = settings.llm_model
         return self._retriever, self._model
 
-    def ask(self, employee_id: str, question: str, log: bool = True) -> AskResult:
-        """Answer one question; raises UnknownEmployeeError or LLMError."""
+    def ask(
+        self, employee_id: str, question: str, log: bool = True, previous: str = ""
+    ) -> AskResult:
+        """Answer one question; raises UnknownEmployeeError or LLMError.
+
+        ``previous`` is the conversation's last question: a short follow-up (e.g. «وإذا
+        كانت خارج المملكة؟») is searched together with it, but answered as asked.
+        """
         retriever, model = self._ready()
         started = time.monotonic()
-        result = retriever.retrieve(question, employee_id, RESULTS_LIMIT)
+        result = retriever.retrieve(search_text(question, previous), employee_id, RESULTS_LIMIT)
         answer = compose_answer(question, result, model)
         seconds = round(time.monotonic() - started, 1)
         query_id = self._log(employee_id, question, answer, result) if log else None
