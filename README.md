@@ -169,3 +169,22 @@ ollama create tabayyun-allam -f /tmp/Modelfile
 ```
 
 ALLaM-7B is trained with a 4,096-token context. Its GGUF build is a community conversion of the official weights (`humain-ai/ALLaM-7B-Instruct-preview`); check the repository's files if the quantisation tag is not found.
+
+## HTTP API
+
+```bash
+python -m backend.db.database        # once: applies schema updates (access_requests columns)
+uvicorn backend.main:app --port 8000
+```
+
+Open `/docs` on port 8000 (in a Codespace: the forwarded port's address) to try every endpoint from the browser. Ollama must be running for `/api/ask`; the first question also loads the search model, so it takes longer.
+
+| Method | Path | Body | Returns |
+|---|---|---|---|
+| POST | `/api/ask` | `{"employee_id": "E001", "question": "…"}` | Path 1: the checked answer, amended-article notices, referrals, articles quoted when the answer failed the checks, sources, the whole reply as text, model and time. Logged in `query_log`. |
+| POST | `/api/access` | `{"employee_id": "E001", "resource_id": "RS001", "action_id": "A4"}` | Path 2: the decision from `decision_rules` (allowed / denied / requires_approval), its explanation and legal basis, the approver when one is needed, and the next step. Logged in `access_requests` (`auto` when the matrix decides, `pending` when approval is needed). The language model is not involved. |
+| GET | `/api/employees` | | Active employees with role and access level (the interface's employee picker until login exists). |
+| GET | `/api/resources` | | Resources with their classification. |
+| GET | `/api/actions` | | Actions (view, download, edit, share). |
+
+Errors: 404 for an unknown employee, resource or action; 503 when the language model cannot be reached; 422 for an invalid body (e.g. an empty question).

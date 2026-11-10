@@ -13,3 +13,4 @@ pdf2image
 rank_bm25
 sentence-transformers
 pytest
+httpx

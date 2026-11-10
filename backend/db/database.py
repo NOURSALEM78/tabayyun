@@ -18,6 +18,15 @@ class Base(DeclarativeBase):
     """Base class from which all database models inherit."""
 
 
+# Columns made optional after the tables were first created. create_all does not change
+# existing tables, so these statements bring older databases in line (safe to repeat).
+SCHEMA_UPDATES: tuple[str, ...] = (
+    "ALTER TABLE access_requests ALTER COLUMN approver_role_id DROP NOT NULL",
+    "ALTER TABLE access_requests ALTER COLUMN approved_at DROP NOT NULL",
+    "ALTER TABLE access_requests ALTER COLUMN approver_note DROP NOT NULL",
+)
+
+
 def init_db(reset: bool = False) -> None:
     """Create registered tables, optionally dropping the schema first."""
     from backend.db.models import Base as ModelBase
@@ -27,6 +36,8 @@ def init_db(reset: bool = False) -> None:
         if reset:
             ModelBase.metadata.drop_all(bind=connection)
         ModelBase.metadata.create_all(bind=connection)
+        for statement in SCHEMA_UPDATES:
+            connection.execute(text(statement))
     logger.info("Database schema initialized")
 
 
