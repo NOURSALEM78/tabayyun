@@ -193,3 +193,28 @@ Open `/docs` on port 8000 (in a Codespace: the forwarded port's address) to try 
 | GET | `/api/actions` | | Actions (view, download, edit, share). |
 
 Errors: 404 for an unknown employee, resource or action; 503 when the language model cannot be reached; 422 for an invalid body (e.g. an empty question).
+
+## Web interface (React)
+
+The interface in `frontend/` is a chat assistant with three pages: **المساعد** (conversations, kept per employee), **مستنداتي** (documents the employee may see) and **طلباتي** (access requests and a form for a new one). The employee is chosen from a list in the sidebar, in place of login, for this demo version. It is plain React with Vite (JavaScript, no other libraries).
+
+Development (two terminals; changes appear in the browser at once):
+
+```bash
+uvicorn backend.main:app --port 8000          # terminal 1: the API
+cd frontend && npm install && npm run dev     # terminal 2: the interface on port 5173
+```
+
+Open port 5173 (in a Codespace: the PORTS tab). The interface sends `/api` calls to port 8000.
+
+One address for everything (for a demo or for others to try it):
+
+```bash
+cd frontend && npm install && npm run build && cd ..
+uvicorn backend.main:app --port 8000
+```
+
+FastAPI then serves the built interface (`frontend/dist`) at `/` and the API under `/api`. To let someone else try it from a Codespace, set port 8000 to **Public** in the PORTS tab for the session only, and back to **Private** afterwards: anyone with the link can use it while it is public. Ollama must be running for questions; each answer takes about a minute on the Codespace CPU, and the page waits for it without timing out.
+
+`frontend/node_modules` and `frontend/dist` are not committed; `npm install` and `npm run build` recreate them.
+
